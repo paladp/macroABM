@@ -1,6 +1,6 @@
 package macroABM;
 
-public class ConsumptionFirmAgent extends ConsumingAgent {
+public class ConsumptionFirmAgent extends FirmAgent {
 
   public ConsumptionFirmAgent() {}
 

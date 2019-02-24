@@ -1,6 +1,6 @@
 /*
  *	A parent class to the bank,consumption firm, capital firm, and household agents
- *	Creates static variables to hold references to the context and projections the 
+ *	Creates static variables to hold references to the context and projections the
  *	agents operate in, and creates the hash table that works as a balance sheet
  */
 package macroABM;
