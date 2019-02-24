@@ -1,8 +1,8 @@
 /*
-*	This class serves as the main class for the simulation. The build method is called by 
-*	the simulation when it is ran and it returns the context with all the projections and 
-*	agents to be used by the simulation. 
-*/
+ *	This class serves as the main class for the simulation. The build method is called by
+ *	the simulation when it is ran and it returns the context with all the projections and
+ *	agents to be used by the simulation.
+ */
 package macroABM;
 
 import repast.simphony.context.Context;
@@ -16,7 +16,8 @@ import repast.simphony.space.graph.Network;
 
 public class macroABMBuilder implements ContextBuilder<Object> {
 
-  //This function builds to context, adds projections to the context, and adds agents to the context
+  // This function builds to context, adds projections to the context, and adds agents to the
+  // context
   @Override
   public Context build(Context<Object> primaryContext) {
     primaryContext.setId("macroABM Context");
@@ -43,7 +44,5 @@ public class macroABMBuilder implements ContextBuilder<Object> {
     return primaryContext;
   }
 
-  public static void main(String[] args) {
-    System.out.println("Hello");
-  }
+  public static void main(String[] args) {}
 }

@@ -3,6 +3,7 @@
  */
 package macroABM;
 
+import org.joda.money.Money;
 import repast.simphony.random.RandomHelper;
 import repast.simphony.space.graph.Network;
 
@@ -33,11 +34,8 @@ public class FirmAgent extends EconomicAgent {
 
   // temporary testing function to generate wealth
   public void genCash() {
-    this.ledger.put("cash", this.ledger.get("cash") + RandomHelper.nextIntFromTo(1, 5));
-  }
-
-  // temporary testing method to access cash
-  public Integer getCash() {
-    return this.ledger.get("cash");
+    this.ledger.put(
+        "cash",
+        this.ledger.get("cash").plus(Money.of(usd, (double) RandomHelper.nextIntFromTo(1, 5))));
   }
 }
