@@ -60,8 +60,8 @@ public abstract class EconomicAgent {
   }
 
   // temporary testing method to access cash
-  public Money getCash() {
-    return this.ledger.get("cash");
+  public BigDecimal getCash() {
+    return this.ledger.get("cash").getAmount();
   }
 
   // temporary testing method to print out cash
