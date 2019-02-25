@@ -46,7 +46,7 @@ public abstract class EconomicAgent {
     bankingNetwork = givenNetwork;
   }
 
-  protected Money calculateExpectedVariable(
+  public Money calculateExpectedVariable(
       Money lastPeriodExpectedVariableValue, Money lastPeriodVariableValue) {
     Money currentPeriodExpectedVariableValue =
         Money.of(

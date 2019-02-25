@@ -44,5 +44,8 @@ public class macroABMBuilder implements ContextBuilder<Object> {
     return primaryContext;
   }
 
-  public static void main(String[] args) {}
+  public static void main(String[] args) {
+	  HouseholdAgent testingAgent = new HouseholdAgent();
+	  System.out.println(testingAgent.getCash().getAmount());
+  }
 }
