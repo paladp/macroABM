@@ -5,6 +5,9 @@
  */
 package macroABM;
 
+import org.joda.money.CurrencyUnit;
+import org.joda.money.Money;
+
 import repast.simphony.context.Context;
 import repast.simphony.context.space.continuous.ContinuousSpaceFactory;
 import repast.simphony.context.space.continuous.ContinuousSpaceFactoryFinder;
@@ -45,7 +48,7 @@ public class macroABMBuilder implements ContextBuilder<Object> {
   }
 
   public static void main(String[] args) {
-    HouseholdAgent testingAgent = new HouseholdAgent();
-    System.out.println(testingAgent.getCash());
+    Money testMoney = EconomicAgent.calculateExpectedVariable(Money.of(CurrencyUnit.of("USD"),150.00), Money.of(CurrencyUnit.of("USD"), 160.00));
+    System.out.println(testMoney.toString());
   }
 }

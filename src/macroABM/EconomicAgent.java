@@ -6,6 +6,7 @@
 package macroABM;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Hashtable;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
@@ -19,7 +20,7 @@ public abstract class EconomicAgent {
   protected static ContinuousSpace<Object> mainSpace;
   protected static Network<Object> bankingNetwork;
   protected static CurrencyUnit usd = CurrencyUnit.of("USD");
-  protected final BigDecimal adaptiveExpectationsParameter = new BigDecimal("0.25");
+  protected static final BigDecimal adaptiveExpectationsParameter = new BigDecimal("0.25");
   protected Hashtable<String, Money> ledger = new Hashtable<String, Money>();
 
   public EconomicAgent() {
@@ -46,16 +47,9 @@ public abstract class EconomicAgent {
     bankingNetwork = givenNetwork;
   }
 
-  public Money calculateExpectedVariable(
+  public static Money calculateExpectedVariable(
       Money lastPeriodExpectedVariableValue, Money lastPeriodVariableValue) {
-    Money currentPeriodExpectedVariableValue =
-        Money.of(
-            usd,
-            lastPeriodVariableValue
-                .getAmount()
-                .subtract(lastPeriodExpectedVariableValue.getAmount())
-                .multiply(adaptiveExpectationsParameter)
-                .add(lastPeriodExpectedVariableValue.getAmount()));
+    Money currentPeriodExpectedVariableValue = lastPeriodVariableValue.minus(lastPeriodExpectedVariableValue).multipliedBy(adaptiveExpectationsParameter, RoundingMode.HALF_UP).plus(lastPeriodExpectedVariableValue);
     return currentPeriodExpectedVariableValue;
   }
 
