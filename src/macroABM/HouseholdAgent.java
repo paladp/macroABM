@@ -16,7 +16,7 @@ public class HouseholdAgent extends EconomicAgent {
   }
 
   // Constructor from super EconomicAgent.java
-  public HouseholdAgent(int givenCash, int givenAssets, int givenLiabilities) {
+  public HouseholdAgent(double givenCash, double givenAssets, double givenLiabilities) {
     super(givenCash, givenAssets, givenLiabilities);
   }
 

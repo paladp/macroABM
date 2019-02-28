@@ -3,6 +3,8 @@
  */
 package macroABM;
 
+import java.math.BigDecimal;
+
 import org.joda.money.Money;
 import repast.simphony.random.RandomHelper;
 import repast.simphony.space.graph.Network;
@@ -11,6 +13,11 @@ public class FirmAgent extends EconomicAgent {
 
   protected static Network<Object> capitalConsumptionNetwork;
   protected BankAgent myBank;
+  protected Money pastPeriodSales;
+  protected Money pastPeriodSalesExpectations;
+  protected Money currentPeriodSalesExpectations;
+  protected Money desiredOutput;
+  protected static final BigDecimal shareOfExpectedSharesBuffer = new BigDecimal("0.10");
 
   // default constructor from EconomicAgent.java
   public FirmAgent() {
@@ -31,6 +38,16 @@ public class FirmAgent extends EconomicAgent {
   public static void setCapitalCOnsumptionNetwork(Network<Object> givenNetwork) {
     capitalConsumptionNetwork = givenNetwork;
   }
+  
+  protected void calcCurrentPeriodSalesExpectations() {
+	  this.currentPeriodSalesExpectations = calculateExpectedVariable(pastPeriodSalesExpectations, pastPeriodSales);
+  }
+  
+  protected void calcDesiredOutput() {
+	  
+  }
+  
+  
 
   // temporary testing function to generate wealth
   public void genCash() {
