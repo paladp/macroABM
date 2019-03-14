@@ -19,7 +19,8 @@ public abstract class EconomicAgent {
   // within, as well as parameters used by all agents in their behaviors
   protected static Context<Object> mainContext;
   protected static ContinuousSpace<Object> mainSpace;
-  protected static Network<Object> bankingNetwork;
+  protected static Network<Object> consumptionNetwork;
+  protected static Network<Object> laborNetwork;
   protected static CurrencyUnit usd = CurrencyUnit.of("USD");
 
   // Variables that all agents have
@@ -45,8 +46,12 @@ public abstract class EconomicAgent {
     mainSpace = givenSpace;
   }
 
-  public static void setBankingNetwork(Network<Object> givenNetwork) {
-    bankingNetwork = givenNetwork;
+  public static void setConsumptionNetwork(Network<Object> givenNetwork) {
+    consumptionNetwork = givenNetwork;
+  }
+  
+  public static void setLaborNetwork(Network<Object> givenNetwork) {
+	  laborNetwork = givenNetwork;
   }
 
   // temporary testing method to access cash
