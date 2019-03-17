@@ -41,6 +41,9 @@ public class macroABMBuilder implements ContextBuilder<Object> {
         new NetworkBuilder<Object>("banking network", primaryContext, false);
     Network<Object> mainBankingNetwork = bankBuilder.buildNetwork();
 
+    int numberofHouseholds = 1000;
+    int numberofFirms = 100;
+
     return primaryContext;
   }
 
