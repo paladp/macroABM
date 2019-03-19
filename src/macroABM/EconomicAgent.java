@@ -32,12 +32,6 @@ public abstract class EconomicAgent {
     // ledger.put("liabilities", Money.of(usd, 0.0d));
   }
 
-  public EconomicAgent(double startingCash) {
-    ledger.put("cash", Money.of(usd, startingCash));
-    // ledger.put("assets", Money.of(usd, startingAssets));
-    // ledger.put("liabilities", Money.of(usd, startingLiability));
-  }
-
   public static void setContext(Context<Object> givenContext) {
     mainContext = givenContext;
   }
@@ -49,9 +43,9 @@ public abstract class EconomicAgent {
   public static void setConsumptionNetwork(Network<Object> givenNetwork) {
     consumptionNetwork = givenNetwork;
   }
-  
+
   public static void setLaborNetwork(Network<Object> givenNetwork) {
-	  laborNetwork = givenNetwork;
+    laborNetwork = givenNetwork;
   }
 
   // temporary testing method to access cash
@@ -62,5 +56,15 @@ public abstract class EconomicAgent {
   // temporary testing method to print out cash
   public void printCash() {
     System.out.println(this + " has " + this.ledger.get("cash").toString() + " in cash.");
+  }
+
+  public void increaseCash(Money amountToIncrease) {
+    Money newBalance = ((Money) this.ledger.get("Cash")).plus(amountToIncrease);
+    this.ledger.put("Cash", newBalance);
+  }
+
+  public void decreaseCash(Money amountToDecrease) {
+    Money newBalance = ((Money) this.ledger.get("Cash")).minus(amountToDecrease);
+    this.ledger.put("Cash", newBalance);
   }
 }

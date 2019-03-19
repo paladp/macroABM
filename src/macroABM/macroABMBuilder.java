@@ -37,12 +37,24 @@ public class macroABMBuilder implements ContextBuilder<Object> {
         new NetworkBuilder<Object>("consumption network", primaryContext, false);
     Network<Object> mainConsumptionNetwork = consumptionBuilder.buildNetwork();
 
-    NetworkBuilder<Object> bankBuilder =
-        new NetworkBuilder<Object>("banking network", primaryContext, false);
-    Network<Object> mainBankingNetwork = bankBuilder.buildNetwork();
+    NetworkBuilder<Object> laborBuilder =
+        new NetworkBuilder<Object>("labor network", primaryContext, false);
+    Network<Object> mainLaborNetwork = laborBuilder.buildNetwork();
 
-    int numberofHouseholds = 1000;
-    int numberofFirms = 100;
+    EconomicAgent.setContext(primaryContext);
+    EconomicAgent.setConsumptionNetwork(mainConsumptionNetwork);
+    EconomicAgent.setLaborNetwork(mainLaborNetwork);
+    EconomicAgent.setSpace(primarySpace);
+
+    int numberOfHouseholds = 50;
+    for (int currentHousehold = 0; currentHousehold < numberOfHouseholds; currentHousehold++) {
+      primaryContext.add(new HouseholdAgent());
+    }
+
+    int numberOfFirms = 10;
+    for (int currentFirm = 0; currentFirm < numberOfFirms; currentFirm++) {
+      primaryContext.add(new ConsumptionFirmAgent());
+    }
 
     return primaryContext;
   }
