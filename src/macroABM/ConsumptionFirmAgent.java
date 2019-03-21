@@ -88,14 +88,43 @@ public class ConsumptionFirmAgent extends EconomicAgent {
 
   protected String payOffDecision;
 
+  protected Money dividends;
+
+  protected double marketShareByEmployees;
+
   // Default Constructor for a consumption firm agent. Determines the starting parameters of the
   // simulation
   public ConsumptionFirmAgent() {
-    this.ledger.put("Cash", Money.of(usd, 0.0d));
-    this.ledger.put("Inventories", new BigDecimal("10"));
+    // Will have 10 employees to start with. Give them enough to pay all for the first period, plus
+    // enough for the buffer and one more worker on top of that. 11,200 for ten workers, 1,120 for
+    // buffer, 1,120 for one more worker for a total of 13440
+    this.ledger.put("Cash", Money.of(usd, 7280.0d));
+
+    // Give them 100 to start with
+    this.ledger.put("Inventories", new BigDecimal("100"));
+
     // Works out to 7 dollars/hour at 40 hour weeks
     this.offeredWage = Money.of(usd, 1120.00d);
-    this.priceOfGoodsSold = Money.of(usd, 5.80d);
+
+    // At 1120 per month, and producing 3 units per day, every unit costs 17.77 to produce setting
+    // an initial lower and upper bound of price at 18.21 and 20.44. Set it in the middle
+    this.priceOfGoodsSold = Money.of(usd, 19.00d);
+
+    // Start with zero workers;
+    this.amountOfWorkers = new BigDecimal("0");
+
+    // Assume that each firm sold 80% of their total productive capacity last period
+    this.lastMonthSales = new BigDecimal("504");
+
+    // Both will be updated, but need to be initialized;
+    this.inventoryFloor = new BigDecimal("0");
+    this.inventoryCeiling = new BigDecimal("0");
+
+    this.wasPositionFilledLastPeriod = true;
+    this.wasPositionOfferedLastPeriod = true;
+    this.monthsEveryPositionFilled = 10;
+    this.firingWorker = false;
+    this.hiringWorker = false;
   }
 
   public ConsumptionFirmAgent(double givenCash, int givenInventories) {
@@ -221,26 +250,41 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   }
 
   protected void calcPayOffDecision() {
+
+    // Calculate how much money the firm expectes to pay in wages
     Money projectedWageDisbursement =
         this.offeredWage.multipliedBy(this.amountOfWorkers, RoundingMode.HALF_DOWN);
 
+    // Calculate how much money the firm expects to save
     Money profitBuffer =
         projectedWageDisbursement.multipliedBy(profitBufferCoeff, RoundingMode.HALF_DOWN);
 
+    // If paying the wages and having a buffer will make the wage have no or negative money, then
+    // have no buffer payment or pay dividends
     if (((Money) this.ledger.get("Cash"))
             .minus(projectedWageDisbursement)
             .minus(profitBuffer)
             .isNegativeOrZero()
         == true) {
       this.payOffDecision = "nobuffer";
+      this.dividends = Money.of(usd, 0.00d);
+    }
 
-      if (((Money) this.ledger.get("Cash")).minus(projectedWageDisbursement).isNegativeOrZero()
-          == true) {
-        // decrease wage until it is exactly zero, then pay using the updated wage also not using
-        // any buffer
-      }
+    // Since we know that our cash minus wage payments minus buffer is negative, we also check if
+    // just the wages alone will make us have negative or no money if it is, then we update the wage
+    // so we can make it
+    if (((Money) this.ledger.get("Cash")).minus(projectedWageDisbursement).isNegativeOrZero()
+        == true) {
+      // decrease wage until it is exactly zero, then pay using the updated wage also not using
+      // any buffer
+      this.offeredWage =
+          ((Money) this.ledger.get("Cash")).dividedBy(this.amountOfWorkers, RoundingMode.HALF_DOWN);
+      this.payOffDecision = "onlywage";
+      this.dividends = Money.of(usd, 0.00d);
     } else {
       this.payOffDecision = "regular";
+      this.dividends =
+          ((Money) this.ledger.get("Cash")).minus(projectedWageDisbursement).minus(profitBuffer);
     }
   }
 
@@ -288,6 +332,52 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   public String getPayOffDecision() {
     return this.payOffDecision;
   }
+
+  public Money getDividends() {
+    return this.dividends;
+  }
+
+  public double getMarketShareByEmployees() {
+    return this.marketShareByEmployees;
+  }
+
+  public boolean canSell() {
+    if (((BigDecimal) this.ledger.get("Inventories")).intValue() <= 0) {
+      return false;
+    } else return true;
+  }
+  //////////////////////////// SETTER METHODS ///////////////////////////////////////////////
+
+  public void increaseAmountOfWorkers(int amountToIncrease) {
+    this.amountOfWorkers = this.amountOfWorkers.add(new BigDecimal(amountToIncrease));
+  }
+
+  public void handleTransaction(transaction givenTransaction) {
+    if (givenTransaction.getReason().equals("wage")) {
+      if (givenTransaction.getBuyer() == this) {
+        Money newBalance =
+            ((Money) this.ledger.get("Cash")).minus(givenTransaction.getAmountMoney());
+        this.ledger.put("Cash", newBalance);
+      }
+    }
+
+    if (givenTransaction.getReason().equals("consumption")) {
+      if (givenTransaction.getSeller() == this) {
+        BigDecimal newInventories =
+            ((BigDecimal) this.ledger.get("Inventories"))
+                .subtract(givenTransaction.getAmountBought());
+        Money newBalance =
+            ((Money) this.ledger.get("Cash")).plus(givenTransaction.getAmountMoney());
+        this.ledger.put("Inventories", newInventories);
+        this.ledger.put("Cash", newBalance);
+      }
+    }
+  }
+
+  public void setMarketShareByEmployees(double givenShare) {
+    this.marketShareByEmployees = givenShare;
+  }
+
   //////////////////////////// PUBLIC METHODS FOR SIM////////////////////////////////////////
   public void runUpdateWage() {
     updateWage(

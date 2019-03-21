@@ -27,7 +27,7 @@ public abstract class EconomicAgent {
   protected Hashtable<String, Object> ledger = new Hashtable<String, Object>();
 
   public EconomicAgent() {
-    ledger.put("cash", Money.of(usd, 0.0d));
+    ledger.put("Cash", Money.of(usd, 0.0d));
     // ledger.put("assets", Money.of(usd, 0.0d));
     // ledger.put("liabilities", Money.of(usd, 0.0d));
   }

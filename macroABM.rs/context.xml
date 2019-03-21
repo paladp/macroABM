@@ -1,3 +1,7 @@
-<context id="macroABM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://repast.org/scenario/context">
-  	
+<context id="macroABM" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:noNamespaceSchemaLocation="http://repast.org/scenario/context">
+  <projection type="continuous space" id="primarySpace"/>
+  <projection type="network" id="consumptionNetwork"/>
+  <projection type="network" id="laborNetwork"/>
 </context>
