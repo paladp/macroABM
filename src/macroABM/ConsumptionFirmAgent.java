@@ -3,6 +3,7 @@ package macroABM;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import org.joda.money.Money;
+import repast.simphony.engine.schedule.ScheduledMethod;
 import repast.simphony.random.RandomHelper;
 
 public class ConsumptionFirmAgent extends EconomicAgent {
@@ -100,8 +101,8 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     // buffer, 1,120 for one more worker for a total of 13440
     this.ledger.put("Cash", Money.of(usd, 7280.0d));
 
-    // Give them 100 to start with
-    this.ledger.put("Inventories", new BigDecimal("100"));
+    // Give them 510 to start with
+    this.ledger.put("Inventories", new BigDecimal("510"));
 
     // Works out to 7 dollars/hour at 40 hour weeks
     this.offeredWage = Money.of(usd, 1120.00d);
@@ -111,7 +112,7 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     this.priceOfGoodsSold = Money.of(usd, 19.00d);
 
     // Start with zero workers;
-    this.amountOfWorkers = new BigDecimal("0");
+    this.amountOfWorkers = new BigDecimal("0.0");
 
     // Assume that each firm sold 80% of their total productive capacity last period
     this.lastMonthSales = new BigDecimal("504");
@@ -125,12 +126,21 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     this.monthsEveryPositionFilled = 10;
     this.firingWorker = false;
     this.hiringWorker = false;
+    this.dividends = Money.of(usd, 0.00d);
   }
 
   public ConsumptionFirmAgent(double givenCash, int givenInventories) {
     this.ledger.put("Cash", Money.of(usd, givenCash));
     this.ledger.put("Inventories", new BigDecimal(givenInventories));
     this.priceOfGoodsSold = Money.of(usd, 5.80d);
+  }
+
+  protected void updateMonthsEveryPositionFilled() {
+    if (this.wasPositionOfferedLastPeriod == true && this.wasPositionFilledLastPeriod == false) {
+      this.monthsEveryPositionFilled = 0;
+    } else {
+      this.monthsEveryPositionFilled++;
+    }
   }
 
   // Method that updates the offered wage of this firm. Needs to know if there was a position
@@ -164,6 +174,12 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   protected void calcInvBounds(BigDecimal givenSales) {
     this.inventoryFloor = invFloorCoeff.multiply(givenSales).setScale(2);
     this.inventoryCeiling = invCeilCoeff.multiply(givenSales).setScale(2);
+    System.out.println(
+        this
+            + "has a floor and ceiling of: "
+            + this.inventoryFloor
+            + " and "
+            + this.inventoryCeiling);
   }
 
   // Method that updates boolean values that represent hiring and firing decisions of this firm.
@@ -181,6 +197,13 @@ public class ConsumptionFirmAgent extends EconomicAgent {
       this.hiringWorker = false;
       this.firingWorker = false;
     }
+
+    System.out.println(
+        this
+            + " is hiring a worker: "
+            + this.hiringWorker
+            + ". This is firing a worker: "
+            + this.firingWorker);
   }
 
   // Method that calculates the cost per unit of consumption good produced. Needs the monthly wage,
@@ -197,6 +220,7 @@ public class ConsumptionFirmAgent extends EconomicAgent {
         givenOfferedWage
             .multipliedBy(givenAmountOfWorkers, RoundingMode.HALF_UP)
             .dividedBy(outputPerMonth, RoundingMode.HALF_UP);
+    System.out.println(this + "has cost per unit produced of: " + this.costPerUnitProduced);
   }
 
   // Method that calculates the floor and ceiling of a firm's consumption good price
@@ -240,17 +264,13 @@ public class ConsumptionFirmAgent extends EconomicAgent {
         this.priceOfGoodsSold = updatedPrice;
       }
     }
+
+    System.out.println(this + "now has a new price of " + this.priceOfGoodsSold.toString());
   }
 
-  protected void produceGoods(
-      BigDecimal givenAmountOfWorkers, BigDecimal givenTechProductionCoeff) {
-    BigDecimal initialInventory = (BigDecimal) this.ledger.get("Inventories");
-    BigDecimal dailyProduction = givenAmountOfWorkers.multiply(givenTechProductionCoeff);
-    this.ledger.put("Inventories", initialInventory.add(dailyProduction));
-  }
-
-  protected void calcPayOffDecision() {
-
+  @ScheduledMethod(start = 1, interval = 5, priority = 90)
+  public void calcPayOffDecision() {
+    System.out.println("in calcpayoffdecision");
     // Calculate how much money the firm expectes to pay in wages
     Money projectedWageDisbursement =
         this.offeredWage.multipliedBy(this.amountOfWorkers, RoundingMode.HALF_DOWN);
@@ -286,8 +306,21 @@ public class ConsumptionFirmAgent extends EconomicAgent {
       this.dividends =
           ((Money) this.ledger.get("Cash")).minus(projectedWageDisbursement).minus(profitBuffer);
     }
+    System.out.println(
+        this
+            + "has payoff decision: "
+            + this.payOffDecision
+            + "and will pay dividends:  "
+            + this.dividends);
   }
 
+  public void produceGoods(BigDecimal givenAmountOfWorkers, BigDecimal givenTechProductionCoeff) {
+    BigDecimal initialInventory = (BigDecimal) this.ledger.get("Inventories");
+    BigDecimal dailyProduction = givenAmountOfWorkers.multiply(givenTechProductionCoeff);
+    System.out.println(this + " had " + this.ledger.get("Inventories") + " inventories");
+    this.ledger.put("Inventories", initialInventory.add(dailyProduction));
+    System.out.println(this + " now has " + this.ledger.get("Inventories") + " inventories");
+  }
   //////////////////////////// GETTER METHODS ///////////////////////////////////////////////
   public Money getOfferedWage() {
     return this.offeredWage;
@@ -352,6 +385,10 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     this.amountOfWorkers = this.amountOfWorkers.add(new BigDecimal(amountToIncrease));
   }
 
+  public void decreaseAmountOfWorkers(int amountToDecrease) {
+    this.amountOfWorkers = this.amountOfWorkers.subtract(new BigDecimal(amountToDecrease));
+  }
+
   public void handleTransaction(transaction givenTransaction) {
     if (givenTransaction.getReason().equals("wage")) {
       if (givenTransaction.getBuyer() == this) {
@@ -368,6 +405,7 @@ public class ConsumptionFirmAgent extends EconomicAgent {
                 .subtract(givenTransaction.getAmountBought());
         Money newBalance =
             ((Money) this.ledger.get("Cash")).plus(givenTransaction.getAmountMoney());
+        this.lastMonthSales = this.lastMonthSales.add(givenTransaction.getAmountBought());
         this.ledger.put("Inventories", newInventories);
         this.ledger.put("Cash", newBalance);
       }
@@ -378,24 +416,45 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     this.marketShareByEmployees = givenShare;
   }
 
+  public void setWasPositionOfferedLastPeriod(boolean value) {
+    this.wasPositionOfferedLastPeriod = value;
+  }
+
+  public void setWasPositionFilledLastPeriod(boolean value) {
+    this.wasPositionFilledLastPeriod = value;
+  }
+
+  public void resetMonthlyDemand() {
+    this.lastMonthSales = new BigDecimal(0.0);
+  }
   //////////////////////////// PUBLIC METHODS FOR SIM////////////////////////////////////////
+
+  @ScheduledMethod(start = 1, interval = 5, priority = 100)
   public void runUpdateWage() {
+    updateMonthsEveryPositionFilled();
     updateWage(
         this.wasPositionOfferedLastPeriod,
         this.wasPositionFilledLastPeriod,
         this.monthsEveryPositionFilled);
   }
 
+  @ScheduledMethod(start = 1, interval = 5, priority = 98)
   public void runUpdateHiringDecision() {
     calcInvBounds(this.lastMonthSales);
     updateHiringDecision(this.inventoryCeiling, this.inventoryFloor);
   }
 
+  @ScheduledMethod(start = 1, interval = 5, priority = 97)
   public void runUpdatePrice() {
     calcInvBounds(this.lastMonthSales);
-    calcCostPerUnitProduced(
-        this.costPerUnitProduced, this.amountOfWorkers, this.techProductionCoeff);
+    calcCostPerUnitProduced(this.offeredWage, this.amountOfWorkers, this.techProductionCoeff);
     calcPriceBounds(this.costPerUnitProduced);
     updatePrice(this.inventoryFloor, this.inventoryCeiling, this.priceFloor, this.priceCeiling);
+    resetMonthlyDemand();
+  }
+
+  @ScheduledMethod(start = 1, interval = 5, priority = 91)
+  public void runProduceGoods() {
+    produceGoods(this.amountOfWorkers, techProductionCoeff);
   }
 }
