@@ -5,7 +5,6 @@
  */
 package macroABM;
 
-import java.math.BigDecimal;
 import java.util.Hashtable;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
@@ -49,8 +48,8 @@ public abstract class EconomicAgent {
   }
 
   // temporary testing method to access cash
-  public BigDecimal getCash() {
-    return ((Money) this.ledger.get("Cash")).getAmount();
+  public Money getCash() {
+    return ((Money) this.ledger.get("Cash"));
   }
 
   // temporary testing method to print out cash

@@ -18,17 +18,23 @@ public class HouseholdAgent extends EconomicAgent {
   int consumptionPerDay;
   int consumedToday;
   Money reservationWage;
+  int amountOfLaborConnections;
+  int amountOfConsumptionConnections;
 
   // Default constructor from super EconomicAgent.java
   public HouseholdAgent() {
     // Set starting cash equal to two months worth of wages for last month
+    // was 22400
     this.ledger.put("Cash", Money.of(usd, 2240.00d));
     this.consumptionPerDay = 0;
     this.consumedToday = 0;
     this.consumptionPerMonth = 0;
     this.reservationWage = Money.of(usd, 1120.00d);
-    System.out.println("Reservation wage is: " + getReservationWage());
   }
+
+  public void setAmountOfLaborConnections(int amount) {}
+
+  public void setAmountOfConsumptionConnections(int amount) {}
 
   public int getConsumedToday() {
     return this.consumedToday;
@@ -42,6 +48,7 @@ public class HouseholdAgent extends EconomicAgent {
     return this.reservationWage;
   }
 
+  @ScheduledMethod(start = 21, interval = 21, priority = 88)
   public void updateReservatonWage() {
 
     // Check if we are employed:
@@ -50,14 +57,18 @@ public class HouseholdAgent extends EconomicAgent {
       ConsumptionFirmAgent employer = (ConsumptionFirmAgent) employerIterator.next();
       if (this.reservationWage.isLessThan(employer.getOfferedWage())) {
         this.reservationWage = employer.getOfferedWage();
+        System.out.println(
+            this + " has set their reservation wage to " + this.reservationWage.toString());
       }
     } else {
       this.reservationWage =
           this.reservationWage.multipliedBy(new BigDecimal(0.90), RoundingMode.HALF_DOWN);
+      System.out.println(
+          this + " has lowered the reservation wage to: " + this.reservationWage.toString());
     }
   }
 
-  @ScheduledMethod(start = 1, interval = 5, priority = 93)
+  @ScheduledMethod(start = 1, interval = 21, priority = 93)
   public void updateConsumption() {
     // Calculate average price of all trading partner goods
     ArrayList<ConsumptionFirmAgent> firmsTradingWith = new ArrayList<ConsumptionFirmAgent>();
@@ -100,6 +111,13 @@ public class HouseholdAgent extends EconomicAgent {
     this.consumptionPerDay = (int) (this.consumptionPerMonth / 21);
     System.out.println(
         this + " will now plan on consuming " + this.consumptionPerDay + " goods per day");
+    if (this.consumptionPerDay < 0) {
+      System.exit(0);
+    }
+  }
+
+  public void resetDailyConsumption() {
+    this.consumedToday = 0;
   }
 
   public void handleTransaction(transaction givenTransaction) {

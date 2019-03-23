@@ -2,6 +2,7 @@ package macroABM;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 import repast.simphony.engine.schedule.ScheduledMethod;
 import repast.simphony.random.RandomHelper;
@@ -99,10 +100,12 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     // Will have 10 employees to start with. Give them enough to pay all for the first period, plus
     // enough for the buffer and one more worker on top of that. 11,200 for ten workers, 1,120 for
     // buffer, 1,120 for one more worker for a total of 13440
-    this.ledger.put("Cash", Money.of(usd, 7280.0d));
+    // was 72800
+    // was 22500
+    this.ledger.put("Cash", Money.of(usd, 6000.0d));
 
     // Give them 510 to start with
-    this.ledger.put("Inventories", new BigDecimal("510"));
+    this.ledger.put("Inventories", new BigDecimal("510.00"));
 
     // Works out to 7 dollars/hour at 40 hour weeks
     this.offeredWage = Money.of(usd, 1120.00d);
@@ -136,7 +139,8 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   }
 
   protected void updateMonthsEveryPositionFilled() {
-    if (this.wasPositionOfferedLastPeriod == true && this.wasPositionFilledLastPeriod == false) {
+    if (this.wasPositionOfferedLastPeriod == true && this.wasPositionFilledLastPeriod == false
+        || this.amountOfWorkers.intValue() == 0) {
       this.monthsEveryPositionFilled = 0;
     } else {
       this.monthsEveryPositionFilled++;
@@ -154,18 +158,30 @@ public class ConsumptionFirmAgent extends EconomicAgent {
       int givenMonthsEveryPositionFilled) {
 
     RandomHelper.createUniform();
+    System.out.println(this + " started with wage equal to " + this.offeredWage.toString());
     if (givenWasPositionOfferedLastPeriod == true && givenWasPositionFilledLastPeriod == false) {
+      System.out.println(this + " is increasing wage");
       offeredWage =
           offeredWage.multipliedBy(
               1.00 + RandomHelper.getUniform().nextDoubleFromTo(0.0d, upperBoundUniformForWage),
               RoundingMode.HALF_UP);
-    } else if (givenMonthsEveryPositionFilled >= 24) {
+    } else if (givenMonthsEveryPositionFilled >= 24 && this.amountOfWorkers.intValue() > 0) {
+      System.out.println(this + " is increasing wage");
       offeredWage =
           offeredWage.multipliedBy(
               1.00 - RandomHelper.getUniform().nextDoubleFromTo(0.0d, upperBoundUniformForWage),
               RoundingMode.HALF_UP);
     } else {
       System.out.println(this + " did not raise the wage this time step");
+    }
+    System.out.println(this + " has new wage " + this.offeredWage.toString());
+    if (this.offeredWage.isNegative()) {
+      System.out.println(
+          this + " offered a position last period?" + givenWasPositionOfferedLastPeriod);
+      System.out.println(
+          this + " offered a filled last period?" + givenWasPositionFilledLastPeriod);
+      System.out.println(this + " consecutive full capacity?" + givenMonthsEveryPositionFilled);
+      System.exit(0);
     }
   }
 
@@ -187,15 +203,19 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   // should fire a worker. If the inventory is lower than the floor, the firm should hire a worker.
   // If the inventory is in between, neither fire nor hire a worker.
   protected void updateHiringDecision(BigDecimal floor, BigDecimal cieling) {
+
     if (((BigDecimal) this.ledger.get("Inventories")).compareTo(floor) == -1) {
       this.hiringWorker = true;
       this.firingWorker = false;
+      this.wasPositionOfferedLastPeriod = true;
     } else if (((BigDecimal) this.ledger.get("Inventories")).compareTo(cieling) == 1) {
       this.hiringWorker = false;
       this.firingWorker = true;
+      this.wasPositionOfferedLastPeriod = false;
     } else {
       this.hiringWorker = false;
       this.firingWorker = false;
+      this.wasPositionOfferedLastPeriod = false;
     }
 
     System.out.println(
@@ -215,11 +235,15 @@ public class ConsumptionFirmAgent extends EconomicAgent {
 
     BigDecimal outputPerMonth =
         givenTechProductionCoeff.multiply(givenAmountOfWorkers).multiply(new BigDecimal("21.00"));
+    if (givenAmountOfWorkers.intValue() > 0) {
+      this.costPerUnitProduced =
+          givenOfferedWage
+              .multipliedBy(givenAmountOfWorkers, RoundingMode.HALF_UP)
+              .dividedBy(outputPerMonth, RoundingMode.HALF_UP);
+    } else {
+      this.costPerUnitProduced = Money.of(CurrencyUnit.USD, 0.00);
+    }
 
-    this.costPerUnitProduced =
-        givenOfferedWage
-            .multipliedBy(givenAmountOfWorkers, RoundingMode.HALF_UP)
-            .dividedBy(outputPerMonth, RoundingMode.HALF_UP);
     System.out.println(this + "has cost per unit produced of: " + this.costPerUnitProduced);
   }
 
@@ -241,7 +265,9 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     // the price of consumption goods by increasing it by a growth factor pulled from a uniform
     // distribution as long as it is less than the price ceiling
     if (((BigDecimal) this.ledger.get("Inventories")).compareTo(givenInventoryFloor) == -1
-        || ((BigDecimal) this.ledger.get("Inventories")).compareTo(givenInventoryFloor) == 0) {
+        || ((BigDecimal) this.ledger.get("Inventories")).compareTo(givenInventoryFloor) == 0
+            && givenPriceFloor.isPositive()
+            && givenPriceCeiling.isPositive()) {
       Money updatedPrice =
           this.priceOfGoodsSold.multipliedBy(
               1.00 + RandomHelper.getUniform().nextDoubleFromTo(0.0d, upperBoundUniformForPrice),
@@ -255,7 +281,9 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     // update the price of consumption goods by decreasing it by a growth factor pulled from a
     // uniform distribution as long as it is more than the price floor
     else if (((BigDecimal) this.ledger.get("Inventories")).compareTo(givenInventoryCeiling) == 1
-        || ((BigDecimal) this.ledger.get("Inventories")).compareTo(givenInventoryCeiling) == 0) {
+        || ((BigDecimal) this.ledger.get("Inventories")).compareTo(givenInventoryCeiling) == 0
+            && givenPriceFloor.isPositive()
+            && givenPriceCeiling.isPositive()) {
       Money updatedPrice =
           this.priceOfGoodsSold.multipliedBy(
               1.00 - RandomHelper.getUniform().nextDoubleFromTo(0.0d, upperBoundUniformForPrice),
@@ -268,53 +296,77 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     System.out.println(this + "now has a new price of " + this.priceOfGoodsSold.toString());
   }
 
-  @ScheduledMethod(start = 1, interval = 5, priority = 90)
+  @ScheduledMethod(start = 21, interval = 21, priority = 90)
   public void calcPayOffDecision() {
     System.out.println("in calcpayoffdecision");
     // Calculate how much money the firm expectes to pay in wages
     Money projectedWageDisbursement =
         this.offeredWage.multipliedBy(this.amountOfWorkers, RoundingMode.HALF_DOWN);
-
+    System.out.println(
+        this
+            + " has "
+            + this.amountOfWorkers
+            + " workers and pays each "
+            + this.offeredWage.toString()
+            + " for a total of "
+            + projectedWageDisbursement);
     // Calculate how much money the firm expects to save
     Money profitBuffer =
         projectedWageDisbursement.multipliedBy(profitBufferCoeff, RoundingMode.HALF_DOWN);
 
+    System.out.println(
+        this
+            + " will have "
+            + ((Money) this.ledger.get("Cash"))
+                .minus(projectedWageDisbursement)
+                .minus(profitBuffer)
+                .toString()
+            + " after wages and profit buffer");
+
     // If paying the wages and having a buffer will make the wage have no or negative money, then
     // have no buffer payment or pay dividends
-    if (((Money) this.ledger.get("Cash"))
-            .minus(projectedWageDisbursement)
-            .minus(profitBuffer)
-            .isNegativeOrZero()
-        == true) {
-      this.payOffDecision = "nobuffer";
-      this.dividends = Money.of(usd, 0.00d);
-    }
-
-    // Since we know that our cash minus wage payments minus buffer is negative, we also check if
-    // just the wages alone will make us have negative or no money if it is, then we update the wage
-    // so we can make it
     if (((Money) this.ledger.get("Cash")).minus(projectedWageDisbursement).isNegativeOrZero()
-        == true) {
+            == true
+        && this.amountOfWorkers.intValue() > 0) {
       // decrease wage until it is exactly zero, then pay using the updated wage also not using
       // any buffer
       this.offeredWage =
           ((Money) this.ledger.get("Cash")).dividedBy(this.amountOfWorkers, RoundingMode.HALF_DOWN);
       this.payOffDecision = "onlywage";
       this.dividends = Money.of(usd, 0.00d);
-    } else {
+      System.out.println(this + "has decreased wages to: " + this.offeredWage.toString());
+    } else if (((Money) this.ledger.get("Cash"))
+                .minus(projectedWageDisbursement)
+                .minus(profitBuffer)
+                .isNegativeOrZero()
+            == true
+        && this.amountOfWorkers.intValue() > 0) {
+
+      this.payOffDecision = "nobuffer";
+      this.dividends = Money.of(usd, 0.00d);
+    } else if (this.amountOfWorkers.intValue() > 0) {
       this.payOffDecision = "regular";
       this.dividends =
           ((Money) this.ledger.get("Cash")).minus(projectedWageDisbursement).minus(profitBuffer);
+    } else {
+      this.payOffDecision = "noworkers";
+      this.dividends = Money.of(usd, 0.00d);
     }
+
+    // Since we know that our cash minus wage payments minus buffer is negative, we also check if
+    // just the wages alone will make us have negative or no money if it is, then we update the wage
+    // so we can make it
+
     System.out.println(
         this
             + "has payoff decision: "
             + this.payOffDecision
-            + "and will pay dividends:  "
+            + " and will pay dividends:  "
             + this.dividends);
   }
 
   public void produceGoods(BigDecimal givenAmountOfWorkers, BigDecimal givenTechProductionCoeff) {
+    System.out.println("IN PRODUCE");
     BigDecimal initialInventory = (BigDecimal) this.ledger.get("Inventories");
     BigDecimal dailyProduction = givenAmountOfWorkers.multiply(givenTechProductionCoeff);
     System.out.println(this + " had " + this.ledger.get("Inventories") + " inventories");
@@ -340,6 +392,10 @@ public class ConsumptionFirmAgent extends EconomicAgent {
 
   public BigDecimal getInvFloor() {
     return this.inventoryFloor;
+  }
+
+  public BigDecimal getAmountOfWorkers() {
+    return this.amountOfWorkers;
   }
 
   public Money getPrice() {
@@ -429,22 +485,23 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   }
   //////////////////////////// PUBLIC METHODS FOR SIM////////////////////////////////////////
 
-  @ScheduledMethod(start = 1, interval = 5, priority = 100)
+  @ScheduledMethod(start = 1, interval = 21, priority = 101)
   public void runUpdateWage() {
     updateMonthsEveryPositionFilled();
     updateWage(
         this.wasPositionOfferedLastPeriod,
         this.wasPositionFilledLastPeriod,
         this.monthsEveryPositionFilled);
+    this.wasPositionFilledLastPeriod = false;
   }
 
-  @ScheduledMethod(start = 1, interval = 5, priority = 98)
+  @ScheduledMethod(start = 1, interval = 21, priority = 99)
   public void runUpdateHiringDecision() {
     calcInvBounds(this.lastMonthSales);
-    updateHiringDecision(this.inventoryCeiling, this.inventoryFloor);
+    updateHiringDecision(this.inventoryFloor, this.inventoryCeiling);
   }
 
-  @ScheduledMethod(start = 1, interval = 5, priority = 97)
+  @ScheduledMethod(start = 1, interval = 21, priority = 98)
   public void runUpdatePrice() {
     calcInvBounds(this.lastMonthSales);
     calcCostPerUnitProduced(this.offeredWage, this.amountOfWorkers, this.techProductionCoeff);
@@ -453,7 +510,7 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     resetMonthlyDemand();
   }
 
-  @ScheduledMethod(start = 1, interval = 5, priority = 91)
+  @ScheduledMethod(start = 1, interval = 1, priority = 91)
   public void runProduceGoods() {
     produceGoods(this.amountOfWorkers, techProductionCoeff);
   }
