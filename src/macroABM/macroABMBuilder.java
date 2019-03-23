@@ -33,8 +33,8 @@ public class macroABMBuilder implements ContextBuilder<Object> {
   public Network<Object> consumptionNetwork;
   public Network<Object> laborNetwork;
   public Network<Object> constraintNetwork;
-  int numberOfFirms = 10;
-  int numberOfHouseholds = 100;
+  int numberOfFirms = 100;
+  int numberOfHouseholds = 1000;
   ArrayList<ConsumptionFirmAgent> consumptionFirms = new ArrayList<ConsumptionFirmAgent>();
   ArrayList<HouseholdAgent> households = new ArrayList<HouseholdAgent>();
   int percentChanceToFindNewPartner = 25;

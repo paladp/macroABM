@@ -94,6 +94,8 @@ public class ConsumptionFirmAgent extends EconomicAgent {
 
   protected double marketShareByEmployees;
 
+  protected int amountSold;
+
   // Default Constructor for a consumption firm agent. Determines the starting parameters of the
   // simulation
   public ConsumptionFirmAgent() {
@@ -130,6 +132,7 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     this.firingWorker = false;
     this.hiringWorker = false;
     this.dividends = Money.of(usd, 0.00d);
+    this.amountSold = 0;
   }
 
   public ConsumptionFirmAgent(double givenCash, int givenInventories) {
@@ -374,6 +377,10 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     System.out.println(this + " now has " + this.ledger.get("Inventories") + " inventories");
   }
   //////////////////////////// GETTER METHODS ///////////////////////////////////////////////
+  public int getDemand() {
+    return this.amountSold;
+  }
+
   public Money getOfferedWage() {
     return this.offeredWage;
   }
@@ -464,6 +471,7 @@ public class ConsumptionFirmAgent extends EconomicAgent {
         this.lastMonthSales = this.lastMonthSales.add(givenTransaction.getAmountBought());
         this.ledger.put("Inventories", newInventories);
         this.ledger.put("Cash", newBalance);
+        this.amountSold++;
       }
     }
   }

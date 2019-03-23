@@ -1,0 +1,91 @@
+macroABM.ConsumptionFirmAgent@50f5a2a7 did not raise the wage this time step
+macroABM.ConsumptionFirmAgent@46e98af8 did not raise the wage this time step
+macroABM.ConsumptionFirmAgent@280e26e0 did not raise the wage this time step
+macroABM.ConsumptionFirmAgent@5ac15d4d did not raise the wage this time step
+macroABM.ConsumptionFirmAgent@4cfad008 did not raise the wage this time step
+macroABM.ConsumptionFirmAgent@4dc3a299 did not raise the wage this time step
+macroABM.ConsumptionFirmAgent@4c826eb4 did not raise the wage this time step
+macroABM.ConsumptionFirmAgent@3c04bcf did not raise the wage this time step
+macroABM.ConsumptionFirmAgent@1f098de3 did not raise the wage this time step
+macroABM.ConsumptionFirmAgent@569649a did not raise the wage this time step
+There are: 0 firms that want to fire workers
+macroABM.ConsumptionFirmAgent@569649ahas a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@569649a is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@280e26e0has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@280e26e0 is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@5ac15d4dhas a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@5ac15d4d is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@1f098de3has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@1f098de3 is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@4c826eb4has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@4c826eb4 is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@4dc3a299has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@4dc3a299 is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@4cfad008has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@4cfad008 is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@46e98af8has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@46e98af8 is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@50f5a2a7has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@50f5a2a7 is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@3c04bcfhas a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@3c04bcf is hiring a worker: false. This is firing a worker: true
+macroABM.ConsumptionFirmAgent@50f5a2a7has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@50f5a2a7has cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@50f5a2a7now has a new price of USD 18.64
+macroABM.ConsumptionFirmAgent@4c826eb4has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@4c826eb4has cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@4c826eb4now has a new price of USD 18.84
+macroABM.ConsumptionFirmAgent@4dc3a299has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@4dc3a299has cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@4dc3a299now has a new price of USD 18.74
+macroABM.ConsumptionFirmAgent@3c04bcfhas a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@3c04bcfhas cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@3c04bcfnow has a new price of USD 18.74
+macroABM.ConsumptionFirmAgent@5ac15d4dhas a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@5ac15d4dhas cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@5ac15d4dnow has a new price of USD 18.88
+macroABM.ConsumptionFirmAgent@4cfad008has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@4cfad008has cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@4cfad008now has a new price of USD 18.63
+macroABM.ConsumptionFirmAgent@280e26e0has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@280e26e0has cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@280e26e0now has a new price of USD 18.88
+macroABM.ConsumptionFirmAgent@569649ahas a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@569649ahas cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@569649anow has a new price of USD 18.84
+macroABM.ConsumptionFirmAgent@46e98af8has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@46e98af8has cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@46e98af8now has a new price of USD 18.69
+macroABM.ConsumptionFirmAgent@1f098de3has a floor and ceiling of: 126.00 and 504.00
+macroABM.ConsumptionFirmAgent@1f098de3has cost per unit produced of: USD 17.78
+macroABM.ConsumptionFirmAgent@1f098de3now has a new price of USD 18.65
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@2bb8d9d7are: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@4dc3a299which has MS of 10.0
+For macroABM.macroABMBuilder@21d5babf old partner had price USD 18.84 new partner has price USD 18.74
+Confirming that macroABM.macroABMBuilder@21d5babf is no longer adjacent to old partner: true
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@5617a8care: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@4dc3a299which has MS of 10.0
+For macroABM.macroABMBuilder@21d5babf old partner had price USD 18.88 new partner has price USD 18.74
+Confirming that macroABM.macroABMBuilder@21d5babf is no longer adjacent to old partner: true
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@115c5672are: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@46e98af8which has MS of 10.0
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@3b04a9edare: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@3c04bcfwhich has MS of 10.0
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@2d067eaare: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@4cfad008which has MS of 10.0
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@62dfb8f8are: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@4c826eb4which has MS of 10.0
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@472c6ddare: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@1f098de3which has MS of 10.0
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@37139783are: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@1f098de3which has MS of 10.0
+For macroABM.macroABMBuilder@21d5babf old partner had price USD 18.84 new partner has price USD 18.65
+Confirming that macroABM.macroABMBuilder@21d5babf is no longer adjacent to old partner: true
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@73222e34are: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@1f098de3which has MS of 10.0
+Market share for the firms not sharing a connection with macroABM.HouseholdAgent@54ab85f2are: 50.0
+Possible new partner is: macroABM.ConsumptionFirmAgent@4cfad008which has MS of 10.0
+For macroABM.macroABMBuilder@21d5babf old partner had price USD 18.88 new partner has price USD 18.63
+Confirming that macroABM.macroABMBuilder@21d5babf is no longer adjacent to old partner: true
+Going in there is a total degree of 0
+There were 0 constrained households

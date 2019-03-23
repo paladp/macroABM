@@ -32,6 +32,20 @@ public class HouseholdAgent extends EconomicAgent {
     this.reservationWage = Money.of(usd, 1120.00d);
   }
 
+  public BigDecimal getUnsatisfiedDemandAsPercent() {
+    if (consumptionPerDay > 0) {
+      BigDecimal unsatisfiedDemand = new BigDecimal(consumptionPerDay - consumedToday);
+      unsatisfiedDemand.setScale(2);
+      BigDecimal consumptionPerDayDecimal = new BigDecimal(consumptionPerDay);
+      consumptionPerDayDecimal.setScale(2);
+      BigDecimal unsatisfiedAsPercent =
+          unsatisfiedDemand.divide(consumptionPerDayDecimal, 2, RoundingMode.HALF_DOWN);
+      return unsatisfiedAsPercent;
+    } else {
+      return new BigDecimal(0);
+    }
+  }
+
   public void setAmountOfLaborConnections(int amount) {}
 
   public void setAmountOfConsumptionConnections(int amount) {}
