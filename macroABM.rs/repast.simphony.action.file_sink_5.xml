@@ -1,0 +1,12 @@
+<repast.simphony.data2.engine.FileSinkDescriptor simphonyVersion="2.6.0">
+  <name>Inventory File Sink</name>
+  <dataSet>Inventories</dataSet>
+  <delimiter>,</delimiter>
+  <format>TABULAR</format>
+  <sourceIds class="linked-hash-set">
+    <string>Inventories</string>
+    <string>tick</string>
+  </sourceIds>
+  <fileName>/home/patrick/macroABM Output/InventoryHistory.csv</fileName>
+  <addTimeStamp>true</addTimeStamp>
+</repast.simphony.data2.engine.FileSinkDescriptor>

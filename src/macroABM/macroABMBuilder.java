@@ -33,8 +33,8 @@ public class macroABMBuilder implements ContextBuilder<Object> {
   public Network<Object> consumptionNetwork;
   public Network<Object> laborNetwork;
   public Network<Object> constraintNetwork;
-  int numberOfFirms = 100;
-  int numberOfHouseholds = 1000;
+  int numberOfFirms = 10;
+  int numberOfHouseholds = 100;
   ArrayList<ConsumptionFirmAgent> consumptionFirms = new ArrayList<ConsumptionFirmAgent>();
   ArrayList<HouseholdAgent> households = new ArrayList<HouseholdAgent>();
   int percentChanceToFindNewPartner = 25;
@@ -136,8 +136,23 @@ public class macroABMBuilder implements ContextBuilder<Object> {
     schedule.schedule(params, this, "testForIncorrectValues");
     params = ScheduleParameters.createRepeating(21, 21, 85);
     schedule.schedule(params, this, "calcUnemploymentRate");
+    params = ScheduleParameters.createOneTime(21000, 84);
+    schedule.schedule(params, this, "calcAverageWage");
 
     return primaryContext;
+  }
+
+  public void calcAverageWage() {
+    Money runningSum = Money.of(CurrencyUnit.of("USD"), 0.00);
+    for (ConsumptionFirmAgent currentFirm : this.consumptionFirms) {
+      runningSum = runningSum.plus(currentFirm.getOfferedWage());
+    }
+
+    Money averageWage =
+        runningSum.dividedBy(new BigDecimal(this.numberOfFirms), RoundingMode.HALF_DOWN);
+    Money newMinimumWage = averageWage.multipliedBy(new BigDecimal(0.90), RoundingMode.HALF_DOWN);
+    ConsumptionFirmAgent.setMinWage(newMinimumWage);
+    System.out.println("Minimum wage set at: " + newMinimumWage.toString());
   }
 
   public int calcUnemploymentRate() {
@@ -824,6 +839,21 @@ public class macroABMBuilder implements ContextBuilder<Object> {
       }
       if (currentFirm.getPayOffDecision().equals("noworkers")) {
         System.out.println(currentFirm + "has no workers");
+      } else if (currentFirm.getPayOffDecision().equals("firingworkers")) {
+
+        int amountToFire = currentFirm.getNumWorkersToFireForMinWage();
+        ArrayList<HouseholdAgent> householdsToFire = new ArrayList<HouseholdAgent>();
+        for (int count = 0; count < amountToFire; count++) {
+          HouseholdAgent currentHouseholdToFire =
+              (HouseholdAgent) this.laborNetwork.getRandomAdjacent(currentFirm);
+          householdsToFire.add(currentHouseholdToFire);
+        }
+
+        for (HouseholdAgent currentHousehold : householdsToFire) {
+          RepastEdge edgeToDelete = this.laborNetwork.getEdge(currentFirm, currentHousehold);
+          this.laborNetwork.removeEdge(edgeToDelete);
+          currentFirm.decreaseAmountOfWorkers(1);
+        }
       }
     }
   }

@@ -39,6 +39,8 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   // This is the upper bound for the uniform distribution used to increase price
   protected static double upperBoundUniformForPrice = 0.02;
 
+  protected static Money minimumWage = Money.of(usd, 0.00);
+
   ////////////////////////////////////////// INSTANCE VARIABLES///////////////////////////
 
   // This is the wage this firms pays to its workers
@@ -96,6 +98,8 @@ public class ConsumptionFirmAgent extends EconomicAgent {
 
   protected int amountSold;
 
+  protected int numWorkersToFireForMinWage;
+
   // Default Constructor for a consumption firm agent. Determines the starting parameters of the
   // simulation
   public ConsumptionFirmAgent() {
@@ -133,6 +137,7 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     this.hiringWorker = false;
     this.dividends = Money.of(usd, 0.00d);
     this.amountSold = 0;
+    this.numWorkersToFireForMinWage = 0;
   }
 
   public ConsumptionFirmAgent(double givenCash, int givenInventories) {
@@ -299,9 +304,20 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     System.out.println(this + "now has a new price of " + this.priceOfGoodsSold.toString());
   }
 
+  public int getNumWorkersToFireForMinWage() {
+    return this.numWorkersToFireForMinWage;
+  }
+
   @ScheduledMethod(start = 21, interval = 21, priority = 90)
   public void calcPayOffDecision() {
     System.out.println("in calcpayoffdecision");
+    this.numWorkersToFireForMinWage = 0;
+    if (this.offeredWage.isLessThan(minimumWage)) {
+      this.offeredWage = minimumWage;
+    }
+    // Make sure that wage is set to atleast minimum wage, if it isn't then set it to be minimum
+    // wage.
+
     // Calculate how much money the firm expectes to pay in wages
     Money projectedWageDisbursement =
         this.offeredWage.multipliedBy(this.amountOfWorkers, RoundingMode.HALF_DOWN);
@@ -335,9 +351,31 @@ public class ConsumptionFirmAgent extends EconomicAgent {
       // any buffer
       this.offeredWage =
           ((Money) this.ledger.get("Cash")).dividedBy(this.amountOfWorkers, RoundingMode.HALF_DOWN);
-      this.payOffDecision = "onlywage";
-      this.dividends = Money.of(usd, 0.00d);
-      System.out.println(this + "has decreased wages to: " + this.offeredWage.toString());
+
+      if (this.offeredWage.isLessThan(minimumWage)) {
+        this.offeredWage = minimumWage;
+        Money newWageDisbursement =
+            this.offeredWage.multipliedBy(this.amountOfWorkers, RoundingMode.HALF_DOWN);
+        Money overFlow = ((Money) this.ledger.get("Cash")).minus(newWageDisbursement).abs();
+        Money newBalance = ((Money) this.ledger.get("Cash")).plus(overFlow).plus(50.00d);
+        this.ledger.put("Cash", newBalance);
+
+        Money runningSum = Money.of(usd, 0.00);
+        while (runningSum.isLessThan(overFlow)) {
+          runningSum = runningSum.plus(minimumWage);
+          this.numWorkersToFireForMinWage++;
+        }
+
+        this.payOffDecision = "firingworkers";
+        this.dividends = Money.of(usd, 0.00d);
+
+      } else if (this.offeredWage.isEqual(minimumWage)
+          || this.offeredWage.isGreaterThan(minimumWage)) {
+        this.payOffDecision = "onlywage";
+        this.dividends = Money.of(usd, 0.00d);
+        System.out.println(this + "has decreased wages to: " + this.offeredWage.toString());
+      }
+
     } else if (((Money) this.ledger.get("Cash"))
                 .minus(projectedWageDisbursement)
                 .minus(profitBuffer)
@@ -443,6 +481,10 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     } else return true;
   }
   //////////////////////////// SETTER METHODS ///////////////////////////////////////////////
+
+  public static void setMinWage(Money valueToUse) {
+    minimumWage = valueToUse;
+  }
 
   public void increaseAmountOfWorkers(int amountToIncrease) {
     this.amountOfWorkers = this.amountOfWorkers.add(new BigDecimal(amountToIncrease));
