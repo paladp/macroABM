@@ -1,0 +1,34 @@
+<repast.simphony.chart2.engine.HistogramChartDescriptor simphonyVersion="2.6.0">
+  <name>Firm Cash Distribution</name>
+  <dataSet>Firm Cash</dataSet>
+  <xAxisLabel>Cash</xAxisLabel>
+  <yAxisLabel>Amount of Firms</yAxisLabel>
+  <chartTitle>Firm Cash Distribution</chartTitle>
+  <type>HISTOGRAM</type>
+  <background>
+    <red>192</red>
+    <green>192</green>
+    <blue>192</blue>
+    <alpha>255</alpha>
+  </background>
+  <gridLineColor>
+    <red>255</red>
+    <green>255</green>
+    <blue>255</blue>
+    <alpha>255</alpha>
+  </gridLineColor>
+  <showGrid>true</showGrid>
+  <showLegend>true</showLegend>
+  <histType>DYNAMIC</histType>
+  <binCount>10</binCount>
+  <sourceId>CashDisplay</sourceId>
+  <outOfRange>IGNORE</outOfRange>
+  <min>0.0</min>
+  <max>0.0</max>
+  <barColor>
+    <red>55</red>
+    <green>63</green>
+    <blue>191</blue>
+    <alpha>255</alpha>
+  </barColor>
+</repast.simphony.chart2.engine.HistogramChartDescriptor>

@@ -1,0 +1,12 @@
+<repast.simphony.data2.engine.FileSinkDescriptor simphonyVersion="2.6.0">
+  <name>Workers Output</name>
+  <dataSet>Workers</dataSet>
+  <delimiter>,</delimiter>
+  <format>TABULAR</format>
+  <sourceIds class="linked-hash-set">
+    <string>TotalWorkers</string>
+    <string>tick</string>
+  </sourceIds>
+  <fileName>/home/patrick/macroABM Output/Number of Agents Expirement/One to Five Ratio/TotalWorkers_1_to_5.csv</fileName>
+  <addTimeStamp>true</addTimeStamp>
+</repast.simphony.data2.engine.FileSinkDescriptor>
