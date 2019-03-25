@@ -365,6 +365,13 @@ public class ConsumptionFirmAgent extends EconomicAgent {
           runningSum = runningSum.plus(minimumWage);
           this.numWorkersToFireForMinWage++;
         }
+        System.out.println(this + " is firing " + this.numWorkersToFireForMinWage);
+        System.out.println(
+            this
+                + " had an overflow of "
+                + overFlow.toString()
+                + " and min wage is "
+                + minimumWage.toString());
 
         this.payOffDecision = "firingworkers";
         this.dividends = Money.of(usd, 0.00d);

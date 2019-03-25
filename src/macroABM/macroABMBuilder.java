@@ -842,18 +842,17 @@ public class macroABMBuilder implements ContextBuilder<Object> {
       } else if (currentFirm.getPayOffDecision().equals("firingworkers")) {
 
         int amountToFire = currentFirm.getNumWorkersToFireForMinWage();
-        ArrayList<HouseholdAgent> householdsToFire = new ArrayList<HouseholdAgent>();
         for (int count = 0; count < amountToFire; count++) {
           HouseholdAgent currentHouseholdToFire =
               (HouseholdAgent) this.laborNetwork.getRandomAdjacent(currentFirm);
-          householdsToFire.add(currentHouseholdToFire);
-        }
-
-        for (HouseholdAgent currentHousehold : householdsToFire) {
-          RepastEdge edgeToDelete = this.laborNetwork.getEdge(currentFirm, currentHousehold);
+          RepastEdge edgeToDelete = this.laborNetwork.getEdge(currentFirm, currentHouseholdToFire);
+          System.out.println(currentFirm + " is firing " + currentHouseholdToFire);
           this.laborNetwork.removeEdge(edgeToDelete);
           currentFirm.decreaseAmountOfWorkers(1);
+          System.out.println(
+              "Confirming: " + !this.laborNetwork.isAdjacent(currentFirm, currentHouseholdToFire));
         }
+        System.exit(0);
       }
     }
   }

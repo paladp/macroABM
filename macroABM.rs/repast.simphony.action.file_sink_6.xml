@@ -1,12 +1,12 @@
 <repast.simphony.data2.engine.FileSinkDescriptor simphonyVersion="2.6.0">
-  <name>Workers File Sink</name>
-  <dataSet>Workers</dataSet>
+  <name>Inventory File Sink</name>
+  <dataSet>Inventories</dataSet>
   <delimiter>,</delimiter>
   <format>TABULAR</format>
   <sourceIds class="linked-hash-set">
-    <string>TotalWorkers</string>
+    <string>Inventories</string>
     <string>tick</string>
   </sourceIds>
-  <fileName>/home/patrick/macroABM Output/WorkerHistory.csv</fileName>
+  <fileName>/home/patrick/macroABM Output/minWage/InventoryHistory.2019.Mar.23.15_53_41.csv</fileName>
   <addTimeStamp>true</addTimeStamp>
 </repast.simphony.data2.engine.FileSinkDescriptor>
