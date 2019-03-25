@@ -33,8 +33,8 @@ public class macroABMBuilder implements ContextBuilder<Object> {
   public Network<Object> consumptionNetwork;
   public Network<Object> laborNetwork;
   public Network<Object> constraintNetwork;
-  int numberOfFirms = 100;
-  int numberOfHouseholds = 1000;
+  int numberOfFirms = 10;
+  int numberOfHouseholds = 50;
   ArrayList<ConsumptionFirmAgent> consumptionFirms = new ArrayList<ConsumptionFirmAgent>();
   ArrayList<HouseholdAgent> households = new ArrayList<HouseholdAgent>();
   int percentChanceToFindNewPartner = 25;
@@ -134,8 +134,8 @@ public class macroABMBuilder implements ContextBuilder<Object> {
     schedule.schedule(params, this, "endOfMonthCleanup");
     params = ScheduleParameters.createRepeating(1, 1, 86);
     schedule.schedule(params, this, "testForIncorrectValues");
-    params = ScheduleParameters.createRepeating(21, 21, 85);
-    schedule.schedule(params, this, "calcUnemploymentRate");
+    //    params = ScheduleParameters.createRepeating(21, 21, 85);
+    //    schedule.schedule(params, this, "calcUnemploymentRate");
 
     return primaryContext;
   }

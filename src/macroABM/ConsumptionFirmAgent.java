@@ -417,6 +417,10 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     return this.priceCeiling;
   }
 
+  public BigDecimal getCashDisplay() {
+    return ((Money) this.ledger.get("Cash")).getAmountMajor();
+  }
+
   public Money getPriceFloor() {
     return this.priceFloor;
   }

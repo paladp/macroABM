@@ -62,6 +62,10 @@ public class HouseholdAgent extends EconomicAgent {
     return this.reservationWage;
   }
 
+  public BigDecimal getCashDisplay() {
+    return ((Money) this.ledger.get("Cash")).getAmountMajor();
+  }
+
   @ScheduledMethod(start = 21, interval = 21, priority = 88)
   public void updateReservatonWage() {
 
