@@ -7,6 +7,6 @@
     <string>TotalWorkers</string>
     <string>tick</string>
   </sourceIds>
-  <fileName>/home/patrick/macroABM Output/Number of Agents Expirement/One to Five Ratio/TotalWorkers_1_to_5.csv</fileName>
+  <fileName>/home/patrick/macroABM Output/mainRuns/AmountWorkersEmployed.csv</fileName>
   <addTimeStamp>true</addTimeStamp>
 </repast.simphony.data2.engine.FileSinkDescriptor>

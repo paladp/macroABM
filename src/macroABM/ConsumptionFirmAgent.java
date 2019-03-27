@@ -104,6 +104,7 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     // buffer, 1,120 for one more worker for a total of 13440
     // was 72800
     // was 22500
+    // was 6000
     this.ledger.put("Cash", Money.of(usd, 6000.0d));
 
     // Give them 510 to start with
@@ -376,6 +377,31 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     this.ledger.put("Inventories", initialInventory.add(dailyProduction));
     System.out.println(this + " now has " + this.ledger.get("Inventories") + " inventories");
   }
+
+  public void handleTransaction(transaction givenTransaction) {
+    if (givenTransaction.getReason().equals("wage")) {
+      if (givenTransaction.getBuyer() == this) {
+        Money newBalance =
+            ((Money) this.ledger.get("Cash")).minus(givenTransaction.getAmountMoney());
+        this.ledger.put("Cash", newBalance);
+      }
+    }
+
+    if (givenTransaction.getReason().equals("consumption")) {
+      if (givenTransaction.getSeller() == this) {
+        BigDecimal newInventories =
+            ((BigDecimal) this.ledger.get("Inventories"))
+                .subtract(givenTransaction.getAmountBought());
+        Money newBalance =
+            ((Money) this.ledger.get("Cash")).plus(givenTransaction.getAmountMoney());
+        this.lastMonthSales = this.lastMonthSales.add(givenTransaction.getAmountBought());
+        this.ledger.put("Inventories", newInventories);
+        this.ledger.put("Cash", newBalance);
+        this.amountSold++;
+      }
+    }
+  }
+
   //////////////////////////// GETTER METHODS ///////////////////////////////////////////////
   public int getDemand() {
     return this.amountSold;
@@ -454,30 +480,6 @@ public class ConsumptionFirmAgent extends EconomicAgent {
 
   public void decreaseAmountOfWorkers(int amountToDecrease) {
     this.amountOfWorkers = this.amountOfWorkers.subtract(new BigDecimal(amountToDecrease));
-  }
-
-  public void handleTransaction(transaction givenTransaction) {
-    if (givenTransaction.getReason().equals("wage")) {
-      if (givenTransaction.getBuyer() == this) {
-        Money newBalance =
-            ((Money) this.ledger.get("Cash")).minus(givenTransaction.getAmountMoney());
-        this.ledger.put("Cash", newBalance);
-      }
-    }
-
-    if (givenTransaction.getReason().equals("consumption")) {
-      if (givenTransaction.getSeller() == this) {
-        BigDecimal newInventories =
-            ((BigDecimal) this.ledger.get("Inventories"))
-                .subtract(givenTransaction.getAmountBought());
-        Money newBalance =
-            ((Money) this.ledger.get("Cash")).plus(givenTransaction.getAmountMoney());
-        this.lastMonthSales = this.lastMonthSales.add(givenTransaction.getAmountBought());
-        this.ledger.put("Inventories", newInventories);
-        this.ledger.put("Cash", newBalance);
-        this.amountSold++;
-      }
-    }
   }
 
   public void setMarketShareByEmployees(double givenShare) {

@@ -34,13 +34,12 @@ public class macroABMBuilder implements ContextBuilder<Object> {
   public Network<Object> laborNetwork;
   public Network<Object> constraintNetwork;
   int numberOfFirms = 10;
-  int numberOfHouseholds = 50;
+  int numberOfHouseholds = 100;
   ArrayList<ConsumptionFirmAgent> consumptionFirms = new ArrayList<ConsumptionFirmAgent>();
   ArrayList<HouseholdAgent> households = new ArrayList<HouseholdAgent>();
   int percentChanceToFindNewPartner = 25;
   double percentThresholdForLowerPrices = 0.99;
   int percentChanceToReplaceConstrainedPartner = 25;
-  static int consumeRuns = 0;
   // This function builds to context, adds projections to the context, and adds agents to the
   // context
   @Override
@@ -208,7 +207,7 @@ public class macroABMBuilder implements ContextBuilder<Object> {
     // Go through every single household
     //    System.out.println("IN CONSUME");
     //    System.out.println("CONSUME HAS RAN: " + this.consumeRuns);
-    consumeRuns++;
+
     for (HouseholdAgent currentHousehold : this.households) {
       //      System.out.println(
       //          currentHousehold

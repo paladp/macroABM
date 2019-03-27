@@ -14,22 +14,24 @@ public class HouseholdAgent extends EconomicAgent {
 
   protected static double savingParameter = 0.9;
 
-  int consumptionPerMonth;
-  int consumptionPerDay;
-  int consumedToday;
-  Money reservationWage;
-  int amountOfLaborConnections;
-  int amountOfConsumptionConnections;
+  protected int consumptionPerMonth;
+  protected int consumptionPerDay;
+  protected int consumedToday;
+  protected Money reservationWage;
+  protected int amountOfLaborConnections;
+  protected int amountOfConsumptionConnections;
+  protected Money paidWage;
 
   // Default constructor from super EconomicAgent.java
   public HouseholdAgent() {
     // Set starting cash equal to two months worth of wages for last month
-    // was 22400
+    // was 2240
     this.ledger.put("Cash", Money.of(usd, 2240.00d));
     this.consumptionPerDay = 0;
     this.consumedToday = 0;
     this.consumptionPerMonth = 0;
     this.reservationWage = Money.of(usd, 1120.00d);
+    this.paidWage = Money.of(usd, 0.00d);
   }
 
   public BigDecimal getUnsatisfiedDemandAsPercent() {
@@ -46,26 +48,6 @@ public class HouseholdAgent extends EconomicAgent {
     }
   }
 
-  public void setAmountOfLaborConnections(int amount) {}
-
-  public void setAmountOfConsumptionConnections(int amount) {}
-
-  public int getConsumedToday() {
-    return this.consumedToday;
-  }
-
-  public int getConsumptionPerDay() {
-    return this.consumptionPerDay;
-  }
-
-  public Money getReservationWage() {
-    return this.reservationWage;
-  }
-
-  public BigDecimal getCashDisplay() {
-    return ((Money) this.ledger.get("Cash")).getAmountMajor();
-  }
-
   @ScheduledMethod(start = 21, interval = 21, priority = 88)
   public void updateReservatonWage() {
 
@@ -73,12 +55,14 @@ public class HouseholdAgent extends EconomicAgent {
     if (laborNetwork.getDegree(this) == 1) {
       Iterator<Object> employerIterator = this.laborNetwork.getAdjacent(this).iterator();
       ConsumptionFirmAgent employer = (ConsumptionFirmAgent) employerIterator.next();
+      this.paidWage = employer.offeredWage;
       if (this.reservationWage.isLessThan(employer.getOfferedWage())) {
         this.reservationWage = employer.getOfferedWage();
         System.out.println(
             this + " has set their reservation wage to " + this.reservationWage.toString());
       }
     } else {
+      this.paidWage = Money.of(usd, 0.00d);
       this.reservationWage =
           this.reservationWage.multipliedBy(new BigDecimal(0.90), RoundingMode.HALF_DOWN);
       System.out.println(
@@ -132,6 +116,30 @@ public class HouseholdAgent extends EconomicAgent {
     if (this.consumptionPerDay < 0) {
       System.exit(0);
     }
+  }
+
+  //  public void setAmountOfLaborConnections(int amount) {}
+  //
+  //  public void setAmountOfConsumptionConnections(int amount) {}
+
+  public int getConsumedToday() {
+    return this.consumedToday;
+  }
+
+  public int getConsumptionPerDay() {
+    return this.consumptionPerDay;
+  }
+
+  public Money getReservationWage() {
+    return this.reservationWage;
+  }
+
+  public BigDecimal getCashDisplay() {
+    return ((Money) this.ledger.get("Cash")).getAmountMajor();
+  }
+
+  public BigDecimal getWageDisplay() {
+    return ((Money) this.paidWage).getAmountMajor();
   }
 
   public void resetDailyConsumption() {

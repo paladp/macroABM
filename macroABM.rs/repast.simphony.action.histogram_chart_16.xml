@@ -1,9 +1,9 @@
 <repast.simphony.chart2.engine.HistogramChartDescriptor simphonyVersion="2.6.0">
-  <name>Unsatisfied Demand Distribution</name>
-  <dataSet>Unsatisfied Demand</dataSet>
-  <xAxisLabel>Amount Unsatisfied as Percent of Demand</xAxisLabel>
-  <yAxisLabel>Number of Households</yAxisLabel>
-  <chartTitle>Unsatisfied Demand</chartTitle>
+  <name>Demand Distribution</name>
+  <dataSet>Demand</dataSet>
+  <xAxisLabel>Goods Sold</xAxisLabel>
+  <yAxisLabel>Amount of Firms</yAxisLabel>
+  <chartTitle>Amount of Goods Sold/Demand</chartTitle>
   <type>HISTOGRAM</type>
   <background>
     <red>192</red>
@@ -20,15 +20,15 @@
   <showGrid>true</showGrid>
   <showLegend>true</showLegend>
   <histType>DYNAMIC</histType>
-  <binCount>10</binCount>
-  <sourceId>UnsatisfiedDemandAsPercent</sourceId>
+  <binCount>20</binCount>
+  <sourceId>Demand</sourceId>
   <outOfRange>IGNORE</outOfRange>
   <min>0.0</min>
   <max>0.0</max>
   <barColor>
-    <red>0</red>
-    <green>17</green>
-    <blue>255</blue>
+    <red>59</red>
+    <green>37</green>
+    <blue>202</blue>
     <alpha>255</alpha>
   </barColor>
 </repast.simphony.chart2.engine.HistogramChartDescriptor>
