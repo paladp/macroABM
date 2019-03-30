@@ -136,7 +136,7 @@ public class macroABMBuilder implements ContextBuilder<Object> {
     schedule.schedule(params, this, "testForIncorrectValues");
     params = ScheduleParameters.createRepeating(21, 21, 85);
     schedule.schedule(params, this, "calcUnemploymentRate");
-    params = ScheduleParameters.createOneTime(21000, 84);
+    params = ScheduleParameters.createOneTime(33600, 84);
     schedule.schedule(params, this, "calcAverageWage");
 
     return primaryContext;
@@ -150,7 +150,7 @@ public class macroABMBuilder implements ContextBuilder<Object> {
 
     Money averageWage =
         runningSum.dividedBy(new BigDecimal(this.numberOfFirms), RoundingMode.HALF_DOWN);
-    Money newMinimumWage = averageWage.multipliedBy(new BigDecimal(0.90), RoundingMode.HALF_DOWN);
+    Money newMinimumWage = averageWage.multipliedBy(new BigDecimal(1.10), RoundingMode.HALF_DOWN);
     ConsumptionFirmAgent.setMinWage(newMinimumWage);
     System.out.println("Minimum wage set at: " + newMinimumWage.toString());
   }
@@ -846,13 +846,11 @@ public class macroABMBuilder implements ContextBuilder<Object> {
           HouseholdAgent currentHouseholdToFire =
               (HouseholdAgent) this.laborNetwork.getRandomAdjacent(currentFirm);
           RepastEdge edgeToDelete = this.laborNetwork.getEdge(currentFirm, currentHouseholdToFire);
-          System.out.println(currentFirm + " is firing " + currentHouseholdToFire);
           this.laborNetwork.removeEdge(edgeToDelete);
           currentFirm.decreaseAmountOfWorkers(1);
           System.out.println(
               "Confirming: " + !this.laborNetwork.isAdjacent(currentFirm, currentHouseholdToFire));
         }
-        System.exit(0);
       }
     }
   }
