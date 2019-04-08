@@ -1,3 +1,7 @@
+/*
+ *  A class that represents a consumption firm
+ */
+
 package macroABM;
 
 import java.math.BigDecimal;
@@ -88,12 +92,16 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   // This keeps track of whether this firm plans to hire an additional worker
   protected boolean hiringWorker;
 
+  // Determines the payoff structure used for the firm
   protected String payOffDecision;
 
+  // A measure of the amount of dividends this firm should pay
   protected Money dividends;
 
+  // What percent of the market this firm makes up
   protected double marketShareByEmployees;
 
+  // Amount of goods sold during its lifetime
   protected int amountSold;
 
   // Default Constructor for a consumption firm agent. Determines the starting parameters of the
@@ -101,11 +109,10 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   public ConsumptionFirmAgent() {
     // Will have 10 employees to start with. Give them enough to pay all for the first period, plus
     // enough for the buffer and one more worker on top of that. 11,200 for ten workers, 1,120 for
-    // buffer, 1,120 for one more worker for a total of 13440
-    // was 72800
-    // was 22500
-    // was 6000
-    this.ledger.put("Cash", Money.of(usd, 6000.0d));
+    // buffer, 1,120 for one more worker for a total of 13440. Since firms will be selling and
+    // getting
+    // money, go ahead and take about half to get 6,000
+    this.ledger.put("Cash", Money.of(usd, 60000.0d));
 
     // Give them 510 to start with
     this.ledger.put("Inventories", new BigDecimal("510.00"));
@@ -127,22 +134,28 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     this.inventoryFloor = new BigDecimal("0");
     this.inventoryCeiling = new BigDecimal("0");
 
+    // Assume that we hired workers for the last period, and have been for the last 10
     this.wasPositionFilledLastPeriod = true;
     this.wasPositionOfferedLastPeriod = true;
     this.monthsEveryPositionFilled = 10;
     this.firingWorker = false;
     this.hiringWorker = false;
+
+    // These will be updated, set to zero initially
     this.dividends = Money.of(usd, 0.00d);
     this.amountSold = 0;
   }
 
+  // Alternate constructor to make testing easier
   public ConsumptionFirmAgent(double givenCash, int givenInventories) {
     this.ledger.put("Cash", Money.of(usd, givenCash));
     this.ledger.put("Inventories", new BigDecimal(givenInventories));
     this.priceOfGoodsSold = Money.of(usd, 5.80d);
   }
 
+  // Method to update the amount of consecutive months that the firm was at full capacity
   protected void updateMonthsEveryPositionFilled() {
+    // If we didn't fill a position last period or we have no workers
     if (this.wasPositionOfferedLastPeriod == true && this.wasPositionFilledLastPeriod == false
         || this.amountOfWorkers.intValue() == 0) {
       this.monthsEveryPositionFilled = 0;
@@ -164,29 +177,21 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     RandomHelper.createUniform();
     System.out.println(this + " started with wage equal to " + this.offeredWage.toString());
     if (givenWasPositionOfferedLastPeriod == true && givenWasPositionFilledLastPeriod == false) {
-      System.out.println(this + " is increasing wage");
+      // System.out.println(this + " is increasing wage");
       offeredWage =
           offeredWage.multipliedBy(
               1.00 + RandomHelper.getUniform().nextDoubleFromTo(0.0d, upperBoundUniformForWage),
               RoundingMode.HALF_UP);
     } else if (givenMonthsEveryPositionFilled >= 24 && this.amountOfWorkers.intValue() > 0) {
-      System.out.println(this + " is increasing wage");
+      // System.out.println(this + " is increasing wage");
       offeredWage =
           offeredWage.multipliedBy(
               1.00 - RandomHelper.getUniform().nextDoubleFromTo(0.0d, upperBoundUniformForWage),
               RoundingMode.HALF_UP);
     } else {
-      System.out.println(this + " did not raise the wage this time step");
+      // System.out.println(this + " did not raise the wage this time step");
     }
     System.out.println(this + " has new wage " + this.offeredWage.toString());
-    if (this.offeredWage.isNegative()) {
-      System.out.println(
-          this + " offered a position last period?" + givenWasPositionOfferedLastPeriod);
-      System.out.println(
-          this + " offered a filled last period?" + givenWasPositionFilledLastPeriod);
-      System.out.println(this + " consecutive full capacity?" + givenMonthsEveryPositionFilled);
-      System.exit(0);
-    }
   }
 
   // Method that updates the inventory floor and ceiling that affect hiring and pricing decisions.
@@ -194,12 +199,12 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   protected void calcInvBounds(BigDecimal givenSales) {
     this.inventoryFloor = invFloorCoeff.multiply(givenSales).setScale(2);
     this.inventoryCeiling = invCeilCoeff.multiply(givenSales).setScale(2);
-    System.out.println(
-        this
-            + "has a floor and ceiling of: "
-            + this.inventoryFloor
-            + " and "
-            + this.inventoryCeiling);
+    //    System.out.println(
+    //        this
+    //            + "has a floor and ceiling of: "
+    //            + this.inventoryFloor
+    //            + " and "
+    //            + this.inventoryCeiling);
   }
 
   // Method that updates boolean values that represent hiring and firing decisions of this firm.
@@ -222,12 +227,12 @@ public class ConsumptionFirmAgent extends EconomicAgent {
       this.wasPositionOfferedLastPeriod = false;
     }
 
-    System.out.println(
-        this
-            + " is hiring a worker: "
-            + this.hiringWorker
-            + ". This is firing a worker: "
-            + this.firingWorker);
+    //    System.out.println(
+    //        this
+    //            + " is hiring a worker: "
+    //            + this.hiringWorker
+    //            + ". This is firing a worker: "
+    //            + this.firingWorker);
   }
 
   // Method that calculates the cost per unit of consumption good produced. Needs the monthly wage,
@@ -239,6 +244,8 @@ public class ConsumptionFirmAgent extends EconomicAgent {
 
     BigDecimal outputPerMonth =
         givenTechProductionCoeff.multiply(givenAmountOfWorkers).multiply(new BigDecimal("21.00"));
+
+    // Only update the costPerUnitProduced we have a non zero amount of workers, other it is zero
     if (givenAmountOfWorkers.intValue() > 0) {
       this.costPerUnitProduced =
           givenOfferedWage
@@ -248,7 +255,7 @@ public class ConsumptionFirmAgent extends EconomicAgent {
       this.costPerUnitProduced = Money.of(CurrencyUnit.USD, 0.00);
     }
 
-    System.out.println(this + "has cost per unit produced of: " + this.costPerUnitProduced);
+    //    System.out.println(this + "has cost per unit produced of: " + this.costPerUnitProduced);
   }
 
   // Method that calculates the floor and ceiling of a firm's consumption good price
@@ -259,6 +266,9 @@ public class ConsumptionFirmAgent extends EconomicAgent {
         givenCostPerUnitProduced.multipliedBy(this.priceCeilCoeff, RoundingMode.HALF_UP);
   }
 
+  // Update the price that this firm charges for its goods. Relies on the inventory bounds
+  // to decide if price should go up or down, and relies on price bounds to limit the new
+  // price of a good if it is changed.
   protected void updatePrice(
       BigDecimal givenInventoryFloor,
       BigDecimal givenInventoryCeiling,
@@ -297,35 +307,36 @@ public class ConsumptionFirmAgent extends EconomicAgent {
       }
     }
 
-    System.out.println(this + "now has a new price of " + this.priceOfGoodsSold.toString());
+    //    System.out.println(this + "now has a new price of " + this.priceOfGoodsSold.toString());
   }
 
+  // Determine what the payoff structure will be for this firm.
   @ScheduledMethod(start = 21, interval = 21, priority = 90)
   public void calcPayOffDecision() {
-    System.out.println("in calcpayoffdecision");
-    // Calculate how much money the firm expectes to pay in wages
+    // Calculate how much money the firm expects to pay in wages
     Money projectedWageDisbursement =
         this.offeredWage.multipliedBy(this.amountOfWorkers, RoundingMode.HALF_DOWN);
-    System.out.println(
-        this
-            + " has "
-            + this.amountOfWorkers
-            + " workers and pays each "
-            + this.offeredWage.toString()
-            + " for a total of "
-            + projectedWageDisbursement);
+    //    System.out.println(
+    //        this
+    //            + " has "
+    //            + this.amountOfWorkers
+    //            + " workers and pays each "
+    //            + this.offeredWage.toString()
+    //            + " for a total of "
+    //            + projectedWageDisbursement);
+
     // Calculate how much money the firm expects to save
     Money profitBuffer =
         projectedWageDisbursement.multipliedBy(profitBufferCoeff, RoundingMode.HALF_DOWN);
 
-    System.out.println(
-        this
-            + " will have "
-            + ((Money) this.ledger.get("Cash"))
-                .minus(projectedWageDisbursement)
-                .minus(profitBuffer)
-                .toString()
-            + " after wages and profit buffer");
+    //    System.out.println(
+    //        this
+    //            + " will have "
+    //            + ((Money) this.ledger.get("Cash"))
+    //                .minus(projectedWageDisbursement)
+    //                .minus(profitBuffer)
+    //                .toString()
+    //            + " after wages and profit buffer");
 
     // If paying the wages and having a buffer will make the wage have no or negative money, then
     // have no buffer payment or pay dividends
@@ -339,6 +350,9 @@ public class ConsumptionFirmAgent extends EconomicAgent {
       this.payOffDecision = "onlywage";
       this.dividends = Money.of(usd, 0.00d);
       System.out.println(this + "has decreased wages to: " + this.offeredWage.toString());
+
+      // If paying wages and saving the full amount of profit buffer will make this have negative
+      // cash, then just pay workers and pay no dividends
     } else if (((Money) this.ledger.get("Cash"))
                 .minus(projectedWageDisbursement)
                 .minus(profitBuffer)
@@ -348,6 +362,9 @@ public class ConsumptionFirmAgent extends EconomicAgent {
 
       this.payOffDecision = "nobuffer";
       this.dividends = Money.of(usd, 0.00d);
+
+      // If paying wages and saving the full amount of profit buffer will not make this firm have
+      // negative amounts of cash, then pay workers, save the full buffer, and also pay dividends
     } else if (this.amountOfWorkers.intValue() > 0) {
       this.payOffDecision = "regular";
       this.dividends =
@@ -356,31 +373,34 @@ public class ConsumptionFirmAgent extends EconomicAgent {
       this.payOffDecision = "noworkers";
       this.dividends = Money.of(usd, 0.00d);
     }
-
-    // Since we know that our cash minus wage payments minus buffer is negative, we also check if
-    // just the wages alone will make us have negative or no money if it is, then we update the wage
-    // so we can make it
-
-    System.out.println(
-        this
-            + "has payoff decision: "
-            + this.payOffDecision
-            + " and will pay dividends:  "
-            + this.dividends);
+    //    System.out.println(
+    //        this
+    //            + "has payoff decision: "
+    //            + this.payOffDecision
+    //            + " and will pay dividends:  "
+    //            + this.dividends);
   }
 
+  // Increase this firm's inventories by 3 time number of workers
   public void produceGoods(BigDecimal givenAmountOfWorkers, BigDecimal givenTechProductionCoeff) {
-    System.out.println("IN PRODUCE");
+    //    System.out.println("IN PRODUCE");
     BigDecimal initialInventory = (BigDecimal) this.ledger.get("Inventories");
     BigDecimal dailyProduction = givenAmountOfWorkers.multiply(givenTechProductionCoeff);
-    System.out.println(this + " had " + this.ledger.get("Inventories") + " inventories");
+    //    System.out.println(this + " had " + this.ledger.get("Inventories") + " inventories");
     this.ledger.put("Inventories", initialInventory.add(dailyProduction));
-    System.out.println(this + " now has " + this.ledger.get("Inventories") + " inventories");
+    //    System.out.println(this + " now has " + this.ledger.get("Inventories") + " inventories");
   }
 
+  // Handle a transaction object that is passed to this firm. There are two reasons to get a
+  // transaction
+  // either it is paying wage or it is selling goods. Either way, check to make sure that the
+  // transaction
+  // is meant for you, and then handle it accordingly
   public void handleTransaction(transaction givenTransaction) {
     if (givenTransaction.getReason().equals("wage")) {
       if (givenTransaction.getBuyer() == this) {
+        // If we are here then we are paying a household its wage, so decrease our amount by the
+        // wage payment
         Money newBalance =
             ((Money) this.ledger.get("Cash")).minus(givenTransaction.getAmountMoney());
         this.ledger.put("Cash", newBalance);
@@ -389,6 +409,8 @@ public class ConsumptionFirmAgent extends EconomicAgent {
 
     if (givenTransaction.getReason().equals("consumption")) {
       if (givenTransaction.getSeller() == this) {
+        // If we are here then we have sold inventories. Update the amount of inventories,
+        // the amount of sales, our cash, and the amount sold
         BigDecimal newInventories =
             ((BigDecimal) this.ledger.get("Inventories"))
                 .subtract(givenTransaction.getAmountBought());
@@ -499,6 +521,11 @@ public class ConsumptionFirmAgent extends EconomicAgent {
   }
   //////////////////////////// PUBLIC METHODS FOR SIM////////////////////////////////////////
 
+  // Thiese are the methods actually run by RePast Simphony and calls all the functions needed to
+  // represent the full scope of the action
+
+  // When updating wage, first ensure that we update the amount of consecutive months at full
+  // capacity then we update the wage
   @ScheduledMethod(start = 1, interval = 21, priority = 101)
   public void runUpdateWage() {
     updateMonthsEveryPositionFilled();
@@ -509,12 +536,18 @@ public class ConsumptionFirmAgent extends EconomicAgent {
     this.wasPositionFilledLastPeriod = false;
   }
 
+  // We update the hiring decision by first updating the inventory bounds and then running
+  // updateHiringDecision
   @ScheduledMethod(start = 1, interval = 21, priority = 99)
   public void runUpdateHiringDecision() {
     calcInvBounds(this.lastMonthSales);
     updateHiringDecision(this.inventoryFloor, this.inventoryCeiling);
   }
 
+  // We update the price by first calling the functions that update the values
+  // that updatePrice relies on. This includes the inventory bounds, cost per unit
+  // produced, and the price bounds. Since we have used the monthly demand already,
+  // we can clear it after we have used it.
   @ScheduledMethod(start = 1, interval = 21, priority = 98)
   public void runUpdatePrice() {
     calcInvBounds(this.lastMonthSales);

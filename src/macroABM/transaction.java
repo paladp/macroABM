@@ -1,10 +1,18 @@
+/*
+ * A class that represents a transaction between two agents, used to help coordinate agent interaction
+ */
 package macroABM;
 
 import java.math.BigDecimal;
 import org.joda.money.Money;
 
 public class transaction {
+
+  // A static int used to help account for transaction correctness if needed, by allowing the user
+  // to keep track of and differentiate transactions
   private static int currentTransactionID = 0;
+
+  // Instance variables used to define this transaction.
   private int transactionID;
   private Money amountMoney;
   private BigDecimal amountBought;
@@ -12,6 +20,7 @@ public class transaction {
   private Object buyer;
   private String reason;
 
+  // Default constructor
   public transaction(
       Object givenBuyer,
       Money givenAmountMoney,
@@ -26,6 +35,8 @@ public class transaction {
     this.transactionID = currentTransactionID + 1;
     currentTransactionID++;
   }
+
+  //////////////////////////// GETTER METHODS ///////////////////////////////////////////////
 
   public Object getSeller() {
     return this.seller;

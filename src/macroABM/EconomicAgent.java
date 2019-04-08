@@ -22,13 +22,13 @@ public abstract class EconomicAgent {
   protected static Network<Object> laborNetwork;
   protected static CurrencyUnit usd = CurrencyUnit.of("USD");
 
-  // Variables that all agents have
+  // A hashtable that is used to group an agents financial information. A hashtable is used to allow
+  // the implementation to add categories to an agents ledger
   protected Hashtable<String, Object> ledger = new Hashtable<String, Object>();
 
+  // Cash only constructor
   public EconomicAgent() {
     ledger.put("Cash", Money.of(usd, 0.0d));
-    // ledger.put("assets", Money.of(usd, 0.0d));
-    // ledger.put("liabilities", Money.of(usd, 0.0d));
   }
 
   public static void setContext(Context<Object> givenContext) {
@@ -47,14 +47,8 @@ public abstract class EconomicAgent {
     laborNetwork = givenNetwork;
   }
 
-  // temporary testing method to access cash
   public Money getCash() {
     return ((Money) this.ledger.get("Cash"));
-  }
-
-  // temporary testing method to print out cash
-  public void printCash() {
-    System.out.println(this + " has " + this.ledger.get("cash").toString() + " in cash.");
   }
 
   public void increaseCash(Money amountToIncrease) {
