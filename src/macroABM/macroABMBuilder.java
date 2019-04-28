@@ -40,6 +40,8 @@ public class macroABMBuilder implements ContextBuilder<Object> {
   int percentChanceToFindNewPartner = 25;
   double percentThresholdForLowerPrices = 0.99;
   int percentChanceToReplaceConstrainedPartner = 25;
+  
+  
   // This function builds to context, adds projections to the context, and adds agents to the
   // context
   @Override
@@ -150,10 +152,9 @@ public class macroABMBuilder implements ContextBuilder<Object> {
     return numberEmployed;
   }
 
-  public int testOutput() {
-    return RandomHelper.nextIntFromTo(1, 10);
-  }
 
+ 
+  // Ran at the end of every timestep, and checks values in order to ensure logical consistency of the model
   public void testForIncorrectValues() {
     System.out.println("Finding errors");
     for (HouseholdAgent currentHousehold : this.households) {
@@ -204,17 +205,8 @@ public class macroABMBuilder implements ContextBuilder<Object> {
   }
 
   public void consume() {
-    // Go through every single household
-    //    System.out.println("IN CONSUME");
-    //    System.out.println("CONSUME HAS RAN: " + this.consumeRuns);
 
     for (HouseholdAgent currentHousehold : this.households) {
-      //      System.out.println(
-      //          currentHousehold
-      //              + " has "
-      //              + this.consumptionNetwork.getDegree(currentHousehold)
-      //              + " trading partners");
-      // Try one buyer first to see if all of their demand can be met with just one partner
       Iterable<Object> tradingPartnersIterable =
           this.consumptionNetwork.getAdjacent(currentHousehold);
       ArrayList<ConsumptionFirmAgent> tradingPartners = new ArrayList<ConsumptionFirmAgent>();
@@ -228,18 +220,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
       // Keep buying and stop once the firm runs out or this household has consumed all it needs to,
       // or the household has less money than the price of the good
 
-      //      System.out.println(
-      //          this
-      //              + " has consumed "
-      //              + currentHousehold.getConsumedToday()
-      //              + " out of "
-      //              + currentHousehold.getConsumptionPerDay());
-      //      System.out.println(firstTradingPartner + " can sell? " +
-      // firstTradingPartner.canSell());
-      //      System.out.println(
-      //          "Can this household afford a good? "
-      //              + (currentHousehold.getCash().isGreaterThan(firstTradingPartner.getPrice())));
-
       while ((currentHousehold.getConsumedToday() < currentHousehold.getConsumptionPerDay())
           && firstTradingPartner.canSell() == true
           && currentHousehold.getCash().isGreaterThan(firstTradingPartner.getPrice())) {
@@ -252,19 +232,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
                 "consumption");
         currentHousehold.handleTransaction(buyOneGood);
         firstTradingPartner.handleTransaction(buyOneGood);
-        //        System.out.println(
-        //            currentHousehold
-        //                + " bought one good from "
-        //                + firstTradingPartner
-        //                + ". Partner now has "
-        //                + firstTradingPartner.getInventory()
-        //                + " inventories");
-        //        System.out.println(
-        //            currentHousehold
-        //                + " has consumed "
-        //                + currentHousehold.getConsumedToday()
-        //                + " out of "
-        //                + currentHousehold.getConsumptionPerDay());
       }
 
       // Check if we ended because we could not consume all we needed, and could still afford to
@@ -275,8 +242,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
         // representing the amount we were unsatisfied
         int amountUnsatisfied =
             currentHousehold.getConsumptionPerDay() - currentHousehold.getConsumedToday();
-
-        //        System.out.println(currentHousehold + " not satisfied by " + amountUnsatisfied);
 
         if (this.constraintNetwork.isAdjacent(currentHousehold, firstTradingPartner) == true) {
           double previousConstraint =
@@ -293,17 +258,13 @@ public class macroABMBuilder implements ContextBuilder<Object> {
               currentHousehold, firstTradingPartner, (double) amountUnsatisfied);
         }
 
-        //        System.out.println(
-        //            "Constraint network worked?"
-        //                + this.constraintNetwork.isAdjacent(currentHousehold,
-        // firstTradingPartner));
-
         // Now, we go through with other trading partners with different bounds. First, until we hit
-        // six firms visited, or until we have met 95 percent of the consumption goal
+        // six firms visited, or until we have met 95 percent of the consumption goal. If we run into
+        // constraints with these partners,  repeat the process of updating the edges on the consumption
+        // network
         int loweredConsumptionGoal = (int) (currentHousehold.getConsumptionPerDay() * 0.95d);
         int numberOfFirmsVisited = 0;
         for (int currentIndex = 1; currentIndex < tradingPartners.size(); currentIndex++) {
-          //          System.out.println("Trying index" + currentIndex);
           while (currentHousehold.getConsumedToday() < loweredConsumptionGoal
               && numberOfFirmsVisited < 6
               && tradingPartners.get(currentIndex).canSell() == true
@@ -317,27 +278,10 @@ public class macroABMBuilder implements ContextBuilder<Object> {
                     "consumption");
             currentHousehold.handleTransaction(buyOneGood);
             tradingPartners.get(currentIndex).handleTransaction(buyOneGood);
-            //            System.out.println(
-            //                currentHousehold
-            //                    + " bought one good from "
-            //                    + tradingPartners.get(currentIndex)
-            //                    + ". Partner now has "
-            //                    + tradingPartners.get(currentIndex).getInventory()
-            //                    + " inventories");
-            //            System.out.println(
-            //                currentHousehold
-            //                    + " has consumed "
-            //                    + currentHousehold.getConsumedToday()
-            //                    + " out of "
-            //                    + loweredConsumptionGoal);
-            //            System.out.println(
-            //                currentHousehold + " has visited " + numberOfFirmsVisited + " firms");
           }
           if (currentHousehold.getConsumedToday() < loweredConsumptionGoal
               && currentHousehold.getCash().isGreaterThan(firstTradingPartner.getPrice())) {
             amountUnsatisfied = loweredConsumptionGoal - currentHousehold.getConsumedToday();
-            //            System.out.println(currentHousehold + " not satisfied by " +
-            // amountUnsatisfied);
             if (this.constraintNetwork.isAdjacent(
                     currentHousehold, tradingPartners.get(currentIndex))
                 == true) {
@@ -357,10 +301,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
               this.constraintNetwork.addEdge(
                   currentHousehold, tradingPartners.get(currentIndex), (double) amountUnsatisfied);
             }
-            //            System.out.println(
-            //                "Constraint network worked?"
-            //                    + this.constraintNetwork.isAdjacent(
-            //                        currentHousehold, tradingPartners.get(currentIndex)));
             numberOfFirmsVisited++;
           }
         }
@@ -380,29 +320,13 @@ public class macroABMBuilder implements ContextBuilder<Object> {
       }
     }
 
-    System.out.println(
-        "There are: " + firmsThatAreFiring.size() + " firms that want to fire workers");
-
     for (ConsumptionFirmAgent currentFirm : firmsThatAreFiring) {
-      // Select a random firm from those that are adjacent in the labor network
+      // Select a random household from those that are adjacent in the labor network
       HouseholdAgent householdToBeFired =
           (HouseholdAgent) this.laborNetwork.getRandomAdjacent(currentFirm);
       RepastEdge edgeToDelete = this.laborNetwork.getEdge(currentFirm, householdToBeFired);
       this.laborNetwork.removeEdge(edgeToDelete);
       currentFirm.decreaseAmountOfWorkers(1);
-      System.out.println(
-          currentFirm
-              + " just fired "
-              + householdToBeFired
-              + " and now has "
-              + this.laborNetwork.getDegree(currentFirm)
-              + " connections and "
-              + currentFirm.getAmountOfWorkers()
-              + " workers");
-      System.out.println(
-          householdToBeFired
-              + " now has degree "
-              + this.laborNetwork.getDegree(householdToBeFired));
     }
   }
 
@@ -433,11 +357,11 @@ public class macroABMBuilder implements ContextBuilder<Object> {
                 + "which has MS of "
                 + possibleNewPartner.getMarketShareByEmployees());
 
-        // Select a random firm that the firm is currently trading with
+        // Select a random firm that the household is currently trading with
         ConsumptionFirmAgent existingPartner =
             (ConsumptionFirmAgent) this.consumptionNetwork.getRandomAdjacent(currentHousehold);
 
-        // Compare their prices
+        // Compare their prices, and select the one with a lower price
         Money priceOfNewPartner = possibleNewPartner.getPrice();
         Money priceOfOldPartner = existingPartner.getPrice();
 
@@ -448,20 +372,8 @@ public class macroABMBuilder implements ContextBuilder<Object> {
             <= this.percentThresholdForLowerPrices) {
           RepastEdge edgeToDelete =
               this.consumptionNetwork.getEdge(currentHousehold, existingPartner);
-          System.out.println(
-              "For "
-                  + this
-                  + " old partner had price "
-                  + existingPartner.getPrice().toString()
-                  + " new partner has price "
-                  + possibleNewPartner.getPrice().toString());
           this.consumptionNetwork.removeEdge(edgeToDelete);
           this.consumptionNetwork.addEdge(currentHousehold, possibleNewPartner);
-          System.out.println(
-              "Confirming that "
-                  + this
-                  + " is no longer adjacent to old partner: "
-                  + !this.laborNetwork.isAdjacent(currentHousehold, existingPartner));
         }
       }
     }
@@ -473,7 +385,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
       // If the household is currently unemployed...
       if (this.laborNetwork.getDegree(currentHousehold) == 0) {
         // This search can only happen a number of times, or until a position is found
-        System.out.println(currentHousehold + " is looking for a job");
         for (int currentSearchIteration = 1;
             currentSearchIteration <= 5;
             currentSearchIteration++) {
@@ -482,12 +393,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
               this.consumptionFirms.get(
                   RandomHelper.nextIntFromTo(0, this.consumptionFirms.size() - 1));
           // Check if the firm is hiring and if the wage offered is higher than our reservationWage
-          System.out.println(
-              potentialEmployer + " is paying " + potentialEmployer.getOfferedWage().toString());
-          System.out.println(
-              currentHousehold
-                  + " wants atleast "
-                  + currentHousehold.getReservationWage().toString());
           if (potentialEmployer.getHiringDecision() == true
               && (potentialEmployer
                       .getOfferedWage()
@@ -507,8 +412,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
       // If the household is currently employed...
       else if (this.laborNetwork.getDegree(currentHousehold) == 1) {
         ConsumptionFirmAgent employer = getEmployer(currentHousehold);
-        System.out.println("Employer was: " + employer);
-        System.out.println("Reservation wage is: " + currentHousehold.getReservationWage());
         // and the reservation wage is less than the employers offered wage rate...
         if (currentHousehold.getReservationWage().isLessThan(employer.getOfferedWage())) {
           ConsumptionFirmAgent possibleNewEmployer =
@@ -519,10 +422,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
             RepastEdge edgeToDelete = this.laborNetwork.getEdge(employer, currentHousehold);
             this.laborNetwork.removeEdge(edgeToDelete);
             employer.decreaseAmountOfWorkers(1);
-            System.out.println(
-                currentHousehold
-                    + " is still connected to old employer?"
-                    + this.laborNetwork.isAdjacent(employer, currentHousehold));
             this.laborNetwork.addEdge(possibleNewEmployer, currentHousehold);
             possibleNewEmployer.increaseAmountOfWorkers(1);
             possibleNewEmployer.setWasPositionFilledLastPeriod(true);
@@ -534,21 +433,14 @@ public class macroABMBuilder implements ContextBuilder<Object> {
             || currentHousehold.getReservationWage().isLessThan(employer.getOfferedWage())
                 == true) {
           if (RandomHelper.nextIntFromTo(1, 100) <= 10) {
-            System.out.println(
-                "Trying to find new partner even though reservation wage is high enough");
             ConsumptionFirmAgent possibleNewEmployer =
                 this.consumptionFirms.get(
                     RandomHelper.nextIntFromTo(0, this.consumptionFirms.size() - 1));
             if (this.laborNetwork.isAdjacent(possibleNewEmployer, currentHousehold) == false
                 && possibleNewEmployer.getOfferedWage().isGreaterThan(employer.getOfferedWage())) {
-              System.out.println("New employer found");
               RepastEdge edgeToDelete = this.laborNetwork.getEdge(employer, currentHousehold);
               this.laborNetwork.removeEdge(edgeToDelete);
               employer.decreaseAmountOfWorkers(1);
-              System.out.println(
-                  currentHousehold
-                      + " is still connected to old employer?"
-                      + this.laborNetwork.isAdjacent(employer, currentHousehold));
               this.laborNetwork.addEdge(possibleNewEmployer, currentHousehold);
               possibleNewEmployer.increaseAmountOfWorkers(1);
               possibleNewEmployer.setWasPositionFilledLastPeriod(true);
@@ -568,15 +460,11 @@ public class macroABMBuilder implements ContextBuilder<Object> {
     // First get all of the households that were constrained in the past month
     ArrayList<HouseholdAgent> constrainedHouseholds = new ArrayList<HouseholdAgent>();
 
-    System.out.println("Going in there is a total degree of " + this.constraintNetwork.getDegree());
-
     for (HouseholdAgent currentHousehold : this.households) {
       if (this.constraintNetwork.getDegree(currentHousehold) >= 1) {
         constrainedHouseholds.add(currentHousehold);
       }
     }
-
-    System.out.println("There were " + constrainedHouseholds.size() + " constrained households");
 
     for (HouseholdAgent currentHousehold : constrainedHouseholds) {
       // For every household, only do the replacement with a given probability
@@ -585,7 +473,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
 
         // Select a random partner from the constrained partners based on the size of the constraint
         ConsumptionFirmAgent constrainedPartner = findRandomConstrainedPartner(currentHousehold);
-        System.out.println("The selected constraining partner was " + constrainedPartner);
 
         ConsumptionFirmAgent replacementPartner;
         // Select a random firm that this is not already connected with
@@ -594,7 +481,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
               this.consumptionFirms.get(
                   RandomHelper.nextIntFromTo(0, this.consumptionFirms.size() - 1));
         } while (this.consumptionNetwork.isAdjacent(currentHousehold, replacementPartner) == true);
-        System.out.println("The selected random partner was " + replacementPartner);
 
         // Delete the edge with the last partner
         RepastEdge edgeToDelete =
@@ -655,11 +541,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
       sumOfShares = sumOfShares + currentFirm.getMarketShareByEmployees();
     }
 
-    System.out.println(
-        "Market share for the firms not sharing a connection with "
-            + householdToUse
-            + "are: "
-            + sumOfShares);
 
     // Generate a random number
     double probability = RandomHelper.nextDoubleFromTo(0, sumOfShares);
@@ -786,7 +667,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
         currFirmsEmployees.add((HouseholdAgent) currEmployee);
       }
 
-      System.out.println(currentFirm + " employs " + currFirmsEmployees.size());
 
       // First, pay every single household
       for (HouseholdAgent currentEmployee : currFirmsEmployees) {
@@ -797,8 +677,6 @@ public class macroABMBuilder implements ContextBuilder<Object> {
         currentFirm.handleTransaction(wagePayment);
       }
 
-      System.out.println(
-          "After paying wage " + currentFirm + " has " + currentFirm.getCash().toString());
 
       // Next distribute the remaining amount of money, as long as each household gets atleast one
       // dollar, and the payoff is regular
@@ -818,14 +696,10 @@ public class macroABMBuilder implements ContextBuilder<Object> {
           currentFirm.handleTransaction(dividendPayment);
         }
 
-        System.out.println(
-            "After paying dividends " + currentFirm + " has " + currentFirm.getCash().toString());
       }
       if (currentFirm.getPayOffDecision().equals("noworkers")) {
         System.out.println(currentFirm + "has no workers");
       }
     }
   }
-
-  public static void main(String[] args) {}
 }

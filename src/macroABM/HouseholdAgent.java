@@ -44,19 +44,19 @@ public class HouseholdAgent extends EconomicAgent {
     this.paidWage = Money.of(usd, 0.00d);
   }
 
-  //  public BigDecimal getUnsatisfiedDemandAsPercent() {
-  //    if (consumptionPerDay > 0) {
-  //      BigDecimal unsatisfiedDemand = new BigDecimal(consumptionPerDay - consumedToday);
-  //      unsatisfiedDemand.setScale(2);
-  //      BigDecimal consumptionPerDayDecimal = new BigDecimal(consumptionPerDay);
-  //      consumptionPerDayDecimal.setScale(2);
-  //      BigDecimal unsatisfiedAsPercent =
-  //          unsatisfiedDemand.divide(consumptionPerDayDecimal, 2, RoundingMode.HALF_DOWN);
-  //      return unsatisfiedAsPercent;
-  //    } else {
-  //      return new BigDecimal(0);
-  //    }
-  //  }
+    public BigDecimal getUnsatisfiedDemandAsPercent() {
+      if (consumptionPerDay > 0) {
+        BigDecimal unsatisfiedDemand = new BigDecimal(consumptionPerDay - consumedToday);
+        unsatisfiedDemand.setScale(2);
+        BigDecimal consumptionPerDayDecimal = new BigDecimal(consumptionPerDay);
+        consumptionPerDayDecimal.setScale(2);
+        BigDecimal unsatisfiedAsPercent =
+            unsatisfiedDemand.divide(consumptionPerDayDecimal, 2, RoundingMode.HALF_DOWN);
+        return unsatisfiedAsPercent;
+      } else {
+        return new BigDecimal(0);
+      }
+    }
 
   // Updates the firms reservation wage as the last step at the end of a month
   @ScheduledMethod(start = 21, interval = 21, priority = 88)
